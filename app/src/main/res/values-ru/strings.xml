@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Погода</string>
+    <string name="forecast_icon_description">Иконка текущей погоды</string>
+    <string name="moscow_city">Москва</string>
+    <string name="temperature_example">+10 / +2</string>
+</resources>
