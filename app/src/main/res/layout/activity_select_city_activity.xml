@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/enter_your_city"
+        android:textSize="@dimen/labels_text_size" />
+
+    <EditText
+        android:id="@+id/editTextCityName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/edit_text_size"
+        android:autofillHints="@string/moscow_city"
+        android:inputType="text"
+        tools:ignore="LabelFor" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/layout_space_size" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/choose_from_popular_list"
+        android:textSize="@dimen/labels_text_size" />
+
+    <TextView
+        android:id="@+id/textViewCity1"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/text_view_city_size"
+        android:padding="@dimen/text_view_padding"
+        android:textSize="@dimen/city_text_size"
+        android:text="@string/moscow_city"
+        android:onClick="onClick"/>
+
+    <TextView
+        android:id="@+id/textViewCity2"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/text_view_city_size"
+        android:padding="@dimen/text_view_padding"
+        android:textSize="@dimen/city_text_size"
+        android:text="@string/peterburg_city"
+        android:onClick="onClick"/>
+
+    <TextView
+        android:id="@+id/textViewCity3"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/text_view_city_size"
+        android:padding="@dimen/text_view_padding"
+        android:textSize="@dimen/city_text_size"
+        android:text="@string/kazan_city"
+        android:onClick="onClick"/>
+
+    <TextView
+        android:id="@+id/textViewCity4"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/text_view_city_size"
+        android:padding="@dimen/text_view_padding"
+        android:textSize="@dimen/city_text_size"
+        android:text="@string/samara_city"
+        android:onClick="onClick"/>
+
+    <TextView
+        android:id="@+id/textViewCity5"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/text_view_city_size"
+        android:padding="@dimen/text_view_padding"
+        android:textSize="@dimen/city_text_size"
+        android:text="@string/tver_city"
+        android:onClick="onClick"/>
+</LinearLayout>

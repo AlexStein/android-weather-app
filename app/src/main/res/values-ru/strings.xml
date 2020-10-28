@@ -4,4 +4,9 @@
     <string name="forecast_icon_description">Иконка текущей погоды</string>
     <string name="moscow_city">Москва</string>
     <string name="temperature_example">+10 / +2</string>
+    <string name="settings_dark_theme_label">Переключить темную тему</string>
+    <string name="tver_city">Тверь</string>
+    <string name="samara_city">Самара</string>
+    <string name="kazan_city">Казань</string>
+    <string name="peterburg_city">Санкт Петербург</string>
 </resources>
