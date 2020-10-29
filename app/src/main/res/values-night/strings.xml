@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="forecast_icon_description">Forecast icon</string>
+    <string name="moscow_city">Moscow</string>
+    <string name="temperature_example">+10 / +2</string>
+    <string name="settings_dark_theme_label">Переключить темную тему</string>
+    <string name="tver_city">Tver</string>
+</resources>

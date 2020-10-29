@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+    <string name="forecast_icon_description">Forecast icon</string>
+    <string name="moscow_city">Moscow</string>
+    <string name="temperature_example">+10 / +2</string>
+    <string name="settings_dark_theme_label">Switch to Dark Theme</string>
+    <string name="tver_city">Tver</string>
+    <string name="samara_city">Samara</string>
+    <string name="kazan_city">Kazan</string>
+    <string name="peterburg_city">St.Peterburg</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_select_city_activity">Select City</string>
+    <string name="choose_from_popular_list">Or choose from popular list</string>
+    <string name="enter_your_city">Enter your city</string>
+</resources>
