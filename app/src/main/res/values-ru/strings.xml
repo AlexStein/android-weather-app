@@ -9,4 +9,9 @@
     <string name="samara_city">Самара</string>
     <string name="kazan_city">Казань</string>
     <string name="peterburg_city">Санкт Петербург</string>
+    <string name="title_activity_settings">Настройки</string>
+    <string name="title_activity_select_city_activity">Выберите город</string>
+    <string name="choose_from_popular_list">или выберите из списка</string>
+    <string name="enter_your_city">Введите свой город</string>
+    <string name="forecastSunny">Солнечно</string>
 </resources>

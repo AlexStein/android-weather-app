@@ -12,4 +12,5 @@
     <string name="title_activity_select_city_activity">Select City</string>
     <string name="choose_from_popular_list">Or choose from popular list</string>
     <string name="enter_your_city">Enter your city</string>
+    <string name="forecastSunny">Sunny</string>
 </resources>
