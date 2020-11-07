@@ -1,6 +1,5 @@
 package ru.softmine.weatherapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,17 +12,16 @@ public class SelectCityActivity extends AppCompatActivity {
 
     private static final boolean DEBUG = true;
     private static final String TAG = SelectCityActivity.class.getName();
-    EditText editText;
+
+    private EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_city_activity);
 
-        Intent intent = getIntent();
-
         editText = findViewById(R.id.editTextCityName);
-        editText.setText(intent.getStringExtra("current_city"));
+        editText.setText(CityPresenter.getInstance().getCityName());
     }
 
     public void onClick(View view) {
@@ -39,7 +37,9 @@ public class SelectCityActivity extends AppCompatActivity {
             case R.id.textViewCity3:
             case R.id.textViewCity4:
             case R.id.textViewCity5:
-                editText.setText(((TextView)view).getText().toString());
+                String cityName = ((TextView)view).getText().toString();
+                editText.setText(cityName);
+                CityPresenter.getInstance().setCityName(cityName);
                 return;
             default:
         }
