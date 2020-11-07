@@ -3,15 +3,24 @@
     <string name="app_name">Погода</string>
     <string name="forecast_icon_description">Иконка текущей погоды</string>
     <string name="moscow_city">Москва</string>
-    <string name="temperature_example">+10 / +2</string>
+    <string name="temperature_example">+10 / +2 C</string>
     <string name="settings_dark_theme_label">Переключить темную тему</string>
     <string name="tver_city">Тверь</string>
     <string name="samara_city">Самара</string>
     <string name="kazan_city">Казань</string>
-    <string name="peterburg_city">Санкт Петербург</string>
+    <string name="petersburg_city">Санкт Петербург</string>
     <string name="title_activity_settings">Настройки</string>
     <string name="title_activity_select_city_activity">Выберите город</string>
     <string name="choose_from_popular_list">или выберите из списка</string>
     <string name="enter_your_city">Введите свой город</string>
     <string name="forecastSunny">Солнечно</string>
+    <string name="celsius">C</string>
+    <string name="fahrenheit">F</string>
+    <string name="temp_units">Единицы темпертуры</string>
+    <string name="apply">Применить</string>
+    <string name="speed_units">Единицы скорости</string>
+    <string name="mph">миль/ч</string>
+    <string name="kph">км/ч</string>
+    <string name="m_s">м/с</string>
+    <string name="wind_example">5 – 10 м/с</string>
 </resources>

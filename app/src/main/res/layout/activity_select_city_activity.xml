@@ -1,80 +1,201 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-
-    <TextView
-        android:id="@+id/textView6"
+    <Button
+        android:id="@+id/buttonApply"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/enter_your_city"
-        android:textSize="@dimen/labels_text_size" />
+        android:layout_marginStart="@dimen/text_view_padding"
+        android:layout_marginEnd="@dimen/text_view_padding"
+        android:onClick="onButtonApplyClick"
+        android:text="@string/apply"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/editTextCityName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/edit_text_size"
+        android:layout_marginTop="@dimen/text_view_padding"
         android:autofillHints="@string/moscow_city"
         android:inputType="text"
-        tools:ignore="LabelFor" />
+        android:textSize="@dimen/edit_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewLabelEnterCity" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/layout_space_size" />
+
 
     <TextView
-        android:id="@+id/textView7"
+        android:id="@+id/textViewLabelEnterCity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_view_padding"
+        android:labelFor="@id/editTextCityName"
+        android:text="@string/enter_your_city"
+        android:textSize="@dimen/labels_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewChoose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/layout_space_size"
         android:text="@string/choose_from_popular_list"
-        android:textSize="@dimen/labels_text_size" />
+        android:textSize="@dimen/labels_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextCityName" />
 
     <TextView
         android:id="@+id/textViewCity1"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/text_view_city_size"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
         android:padding="@dimen/text_view_padding"
-        android:textSize="@dimen/city_text_size"
         android:text="@string/moscow_city"
-        android:onClick="onClick"/>
+        android:textSize="@dimen/city_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewChoose" />
 
     <TextView
         android:id="@+id/textViewCity2"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/text_view_city_size"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
         android:padding="@dimen/text_view_padding"
+        android:text="@string/petersburg_city"
         android:textSize="@dimen/city_text_size"
-        android:text="@string/peterburg_city"
-        android:onClick="onClick"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCity1" />
 
     <TextView
         android:id="@+id/textViewCity3"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/text_view_city_size"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
         android:padding="@dimen/text_view_padding"
-        android:textSize="@dimen/city_text_size"
         android:text="@string/kazan_city"
-        android:onClick="onClick"/>
+        android:textSize="@dimen/city_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCity2" />
 
     <TextView
         android:id="@+id/textViewCity4"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/text_view_city_size"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
         android:padding="@dimen/text_view_padding"
-        android:textSize="@dimen/city_text_size"
         android:text="@string/samara_city"
-        android:onClick="onClick"/>
+        android:textSize="@dimen/city_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCity3" />
 
     <TextView
         android:id="@+id/textViewCity5"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/text_view_city_size"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
         android:padding="@dimen/text_view_padding"
-        android:textSize="@dimen/city_text_size"
         android:text="@string/tver_city"
-        android:onClick="onClick"/>
-</LinearLayout>
+        android:textSize="@dimen/city_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCity4" />
+
+    <TextView
+        android:id="@+id/textViewSpeedUnits"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/radioGroupSpeed"
+        android:padding="@dimen/text_view_padding"
+        android:text="@string/speed_units"
+        android:textSize="@dimen/settings_text_size"
+        app:layout_constraintBottom_toBottomOf="@+id/radioGroupSpeed"
+        app:layout_constraintEnd_toStartOf="@+id/radioGroupSpeed"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/radioGroupSpeed" />
+
+    <TextView
+        android:id="@+id/textViewTempUnits"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/radioGroupTemp"
+        android:padding="@dimen/text_view_padding"
+        android:text="@string/temp_units"
+        android:textSize="@dimen/settings_text_size"
+        app:layout_constraintBottom_toBottomOf="@+id/radioGroupTemp"
+        app:layout_constraintEnd_toStartOf="@+id/radioGroupTemp"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/radioGroupTemp" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/radioC"
+        android:gravity="end"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/buttonApply"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewTempUnits">
+
+        <RadioButton
+            android:id="@+id/radioC"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/celsius" />
+
+        <RadioButton
+            android:id="@+id/radioF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fahrenheit" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/radioGroupSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/radioMS"
+        android:gravity="end"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/radioGroupTemp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewSpeedUnits">
+
+        <RadioButton
+            android:id="@+id/radioKPH"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/kph" />
+
+        <RadioButton
+            android:id="@+id/radioMPH"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mph" />
+
+        <RadioButton
+            android:id="@+id/radioMS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/m_s" />
+    </RadioGroup>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
