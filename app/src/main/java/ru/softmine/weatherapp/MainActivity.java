@@ -1,6 +1,7 @@
 package ru.softmine.weatherapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,16 +10,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final String TAG = MainActivity.class.getName();
+    private static final int CITY_RESULT = 0xAA;
+
+    private Random rand = new Random();
 
     private TextView cityNameTextView;
     private TextView forecastTextView;
     private TextView tempsTextView;
+    private TextView windTextView;
     private ImageView weatherIconImageView;
 
     @Override
@@ -40,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         cityNameTextView = findViewById(R.id.cityNameTextView);
         forecastTextView = findViewById(R.id.forecastTextView);
         tempsTextView = findViewById(R.id.tempsTextView);
+        windTextView = findViewById(R.id.windTextView);
         weatherIconImageView = findViewById(R.id.weatherIconImageView);
 
         // Первый запуск, заполняем значениями по умолчанию
@@ -47,13 +56,15 @@ public class MainActivity extends AppCompatActivity {
             String cityName = getResources().getString(R.string.moscow_city);
             String forecast = getResources().getString(R.string.forecastSunny);;
             String temperature = getResources().getString(R.string.temperature_example);
+            String windSpeed = getResources().getString(R.string.wind_example);
 
             forecastTextView.setText(forecast);
             tempsTextView.setText(temperature);
+            windTextView.setText(windSpeed);
             // Иконку будет выставлять в зависимости от значения forecast
             weatherIconImageView.setImageResource(R.drawable.sunny);
 
-            CityPresenter.getInstance().setCityName(cityName);
+            CityModel.getInstance().setCityName(cityName);
         }
     }
 
@@ -109,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(getApplicationContext(), "onResume()", Toast.LENGTH_SHORT).show();
 
-        cityNameTextView.setText(CityPresenter.getInstance().getCityName());
+        cityNameTextView.setText(CityModel.getInstance().getCityName());
     }
 
     @Override
@@ -157,6 +168,28 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "onDestroy()", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode != CITY_RESULT) {
+            super.onActivityResult(requestCode, resultCode, data);
+            return;
+        }
+
+        if (resultCode == RESULT_OK) {
+            cityNameTextView.setText(data.getStringExtra(BundleKeys.CITYNAME));
+
+            String tempUnit = data.getStringExtra(BundleKeys.TEMPUNITS);
+            int t_day = rand.nextInt(50) - 20;
+            int t_night = t_day - rand.nextInt(10);
+            tempsTextView.setText(String.format(getString(R.string.temp_format), t_day, t_night, tempUnit));
+
+            int w_min = rand.nextInt(10);
+            int w_max = rand.nextInt(5) + w_min;
+            String speedUnit = data.getStringExtra(BundleKeys.SPEEDUNITS);
+            windTextView.setText(String.format(getString(R.string.speed_format), w_min, w_max, speedUnit));
+        }
+    }
+
     /**
      * Переход на выбор города, по клику на наименовании текущего города
      *
@@ -164,6 +197,21 @@ public class MainActivity extends AppCompatActivity {
      */
     public void cityOnClick(View view) {
         Intent intent = new Intent(this, SelectCityActivity.class);
+        startActivityForResult(intent, CITY_RESULT);
+    }
+
+    /**
+     * Переход на страницу с информацией о городе. Например на Wiki.
+     *
+     * @param view Button
+     */
+    public void onButtonInfoClick(View view) {
+
+        String url = String.format(getString(R.string.wiki_url_format),
+                cityNameTextView.getText().toString());
+
+        Uri uri = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
     }
 }

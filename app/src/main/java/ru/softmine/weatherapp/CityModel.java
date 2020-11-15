@@ -3,13 +3,13 @@ package ru.softmine.weatherapp;
 /**
  * Синглтон для хранения текущего города
  */
-public class CityPresenter {
+public class CityModel {
 
-    private static CityPresenter instance;
+    private static CityModel instance;
     private static final Object obj = new Object();
     private String cityName;
 
-    private CityPresenter() {
+    private CityModel() {
         this.cityName = "";
     }
 
@@ -21,10 +21,10 @@ public class CityPresenter {
         this.cityName = cityName;
     }
 
-    public static CityPresenter getInstance() {
+    public static CityModel getInstance() {
         synchronized (obj) {
             if (instance == null) {
-                instance = new CityPresenter();
+                instance = new CityModel();
             }
             return instance;
         }
