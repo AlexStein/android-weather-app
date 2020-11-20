@@ -28,6 +28,13 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Первый запуск.");
             }
         }
+
+        if (savedInstanceState == null) {
+            WeekForecastFragment forecast = new WeekForecastFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, forecast).commit();
+        }
     }
 
     @Override
@@ -114,20 +121,6 @@ public class MainActivity extends AppCompatActivity {
 
         Uri uri = Uri.parse(url);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        startActivity(intent);
-    }
-
-    /**
-     * Переключить на активити с фрагментом списка прогноза на неделю
-     *
-     * @param view Button
-     */
-    public void onButtonDetailsClick(View view) {
-        String cityName = CityModel.getInstance().getCityName();
-
-        Intent intent = new Intent();
-        intent.setClass(this, WeekForecastActivity.class);
-        intent.putExtra(BundleKeys.CITY_NAME, cityName);
         startActivity(intent);
     }
 

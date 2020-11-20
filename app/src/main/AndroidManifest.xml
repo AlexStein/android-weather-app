@@ -12,10 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WeatherApp">
         <activity
-            android:name=".WeekForecastActivity"
-            android:label="@string/title_week_forecast_activity">
-        </activity>
-        <activity
             android:name=".SelectCityActivity"
             android:label="@string/title_activity_select_city_activity">
         </activity>

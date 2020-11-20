@@ -32,4 +32,5 @@
     <string name="saturday">Сб</string>
     <string name="sunday">Вс</string>
     <string name="title_week_forecast_activity">Прогноз на неделю</string>
+    <string name="weather_icon">Weather icon</string>
 </resources>

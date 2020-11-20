@@ -34,7 +34,6 @@
     <string name="friday">Fri</string>
     <string name="saturday">Sat</string>
     <string name="sunday">Sun</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="day_fmt">EEE dd.MM</string>
+    <string name="day_fmt" translatable="false">EEE dd.MM</string>
+    <string name="weather_icon">Weather icon</string>
 </resources>

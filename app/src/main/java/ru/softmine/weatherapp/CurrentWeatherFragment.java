@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,7 +27,6 @@ public class CurrentWeatherFragment extends Fragment {
     private TextView tempsTextView;
     private TextView windTextView;
     private ImageView weatherIconImageView;
-    private Button buttonDetails;
 
     private final Random rand = new Random();
 
@@ -46,9 +44,6 @@ public class CurrentWeatherFragment extends Fragment {
         tempsTextView = view.findViewById(R.id.tempsTextView);
         windTextView = view.findViewById(R.id.windTextView);
         weatherIconImageView = view.findViewById(R.id.weatherIconImageView);
-        buttonDetails = view.findViewById(R.id.buttonDetails);
-
-        buttonDetails.setVisibility(View.INVISIBLE);
 
         // Первый запуск, заполняем значениями по умолчанию
         if (savedInstanceState == null) {
@@ -81,8 +76,6 @@ public class CurrentWeatherFragment extends Fragment {
 
         if (isLandscape) {
             showForecast();
-        } else {
-            buttonDetails.setVisibility(View.VISIBLE);
         }
     }
 
