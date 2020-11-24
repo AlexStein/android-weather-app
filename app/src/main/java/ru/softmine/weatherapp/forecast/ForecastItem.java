@@ -1,4 +1,4 @@
-package ru.softmine.weatherapp;
+package ru.softmine.weatherapp.forecast;
 
 import java.util.Date;
 
