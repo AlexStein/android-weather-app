@@ -3,13 +3,11 @@ package ru.softmine.weatherapp.forecast;
 import android.content.res.Resources;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import ru.softmine.weatherapp.R;
 import ru.softmine.weatherapp.WeatherDataSource;
+import ru.softmine.weatherapp.openweathermodel.Daily;
 
 public class ForecastSource implements WeatherDataSource {
     private final List<ForecastItem> dataSource;
@@ -22,23 +20,11 @@ public class ForecastSource implements WeatherDataSource {
         this.resources = resources;
     }
 
-    public ForecastSource init() {
-        // строки прогнозов
-        String[] conditions = resources.getStringArray(R.array.forecasts);
-
-        Calendar calendar = Calendar.getInstance();
-        Date dt;
-        int tMin;
-        int tMax;
-
-        // заполнение источника данных
-        for (int i = 0; i < conditions.length; i++) {
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-            dt = calendar.getTime();
-            tMin = rand.nextInt(10);
-            tMax = rand.nextInt(5) + tMin;
-
-            dataSource.add(new ForecastItem(dt, tMin, tMax, conditions[i]));
+    public ForecastSource init(Daily[] daily) {
+        for (Daily d : daily) {
+            dataSource.add(new ForecastItem(d.getDate(),
+                    Math.round(d.getTempMin()), Math.round(d.getTempMax()),
+                    d.getWeather().getMain()));
         }
         return this;
     }
