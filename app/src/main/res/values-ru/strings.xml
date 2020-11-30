@@ -23,4 +23,13 @@
     <string name="kph">км/ч</string>
     <string name="m_s">м/с</string>
     <string name="wind_example">5 – 10 м/с</string>
+    <string name="weekForecast">Прогноз на неделю</string>
+    <string name="tuesday">Вт</string>
+    <string name="monday">Пн</string>
+    <string name="wednesday">Ср</string>
+    <string name="thursday">Чт</string>
+    <string name="friday">Пт</string>
+    <string name="saturday">Сб</string>
+    <string name="sunday">Вс</string>
+    <string name="title_week_forecast_activity">Прогноз на неделю</string>
 </resources>

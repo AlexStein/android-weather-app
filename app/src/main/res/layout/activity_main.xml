@@ -1,95 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity">
-
-        <ImageView
-            android:id="@+id/weatherIconImageView"
-            android:layout_width="@dimen/image_size"
-            android:layout_height="@dimen/image_size"
-            android:layout_marginTop="@dimen/text_view_padding"
-            android:contentDescription="@string/forecast_icon_description"
-            android:scaleType="centerCrop"
-            android:src="@drawable/sunny"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cityNameTextView" />
-
-        <TextView
-            android:id="@+id/tempsTextView"
+        android:layout_height="match_parent">
+        <fragment android:name="ru.softmine.weatherapp.CurrentWeatherFragment"
+            android:id="@+id/current_weather"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/text_view_padding"
-             android:text="@string/temperature_example"
-            android:textAlignment="center"
-            android:textSize="@dimen/labels_text_size"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/forecastTextView" />
-
-        <TextView
-            android:id="@+id/cityNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/city_text_margin"
-            android:onClick="cityOnClick"
-            android:text="@string/moscow_city"
-            android:textAlignment="center"
-            android:textSize="@dimen/city_text_size"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/forecastTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/text_view_padding"
-            android:text="@string/forecastSunny"
-            android:textAlignment="center"
-            android:textSize="@dimen/city_text_size"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/weatherIconImageView" />
-
-        <TextView
-            android:id="@+id/windTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/text_view_padding"
-            android:text="@string/wind_example"
-            android:textAlignment="center"
-            android:textSize="@dimen/labels_text_size"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tempsTextView" />
-
-        <Button
-            android:id="@+id/buttonInfo"
-            android:layout_width="@dimen/info_icon_size"
-            android:layout_height="@dimen/info_icon_size"
-            android:layout_marginStart="@dimen/text_view_padding"
-            android:background="@android:drawable/ic_dialog_info"
-            android:fontFamily="casual"
-            android:onClick="onButtonInfoClick"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/cityNameTextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/cityNameTextView"
-            app:layout_constraintTop_toTopOf="@+id/cityNameTextView" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+            android:layout_height="match_parent" />
+    </FrameLayout>
+</LinearLayout>
