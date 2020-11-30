@@ -29,4 +29,7 @@
         <item>@string/forecastSunny</item>
     </string-array>
 
+    <array name="pictures">
+        <item>@drawable/sunny</item>
+    </array>
 </resources>
