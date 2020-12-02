@@ -37,7 +37,7 @@
         android:id="@+id/cityNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/city_text_margin"
+        android:layout_marginTop="8dp"
         android:onClick="cityOnClick"
         android:text="@string/moscow_city"
         android:textAlignment="center"
@@ -84,15 +84,5 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/cityNameTextView"
         app:layout_constraintTop_toTopOf="@+id/cityNameTextView" />
-
-    <Button
-        android:id="@+id/buttonDetails"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/weekForecast"
-        android:onClick="onButtonDetailsClick"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/windTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

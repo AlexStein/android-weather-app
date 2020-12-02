@@ -27,4 +27,5 @@
     <dimen name="image_size">160dp</dimen>
     <dimen name="city_text_margin">16dp</dimen>
     <dimen name="info_icon_size">24dp</dimen>
+    <dimen name="current_weather_fragment_height">340dp</dimen>
 </resources>
