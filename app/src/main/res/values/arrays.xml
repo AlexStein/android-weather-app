@@ -12,6 +12,17 @@
         <item>@string/kaluga_city</item>
     </string-array>
 
+    <string-array name="directions">
+        <item>@string/direction_n</item>
+        <item>@string/direction_nw</item>
+        <item>@string/direction_w</item>
+        <item>@string/direction_sw</item>
+        <item>@string/direction_s</item>
+        <item>@string/direction_se</item>
+        <item>@string/direction_e</item>
+        <item>@string/direction_ne</item>
+    </string-array>
+
     <string-array name="week_days">
         <item>@string/monday</item>
         <item>@string/tuesday</item>
@@ -45,5 +56,4 @@
     <array name="pictures">
         <item>@drawable/sunny</item>
     </array>
-
 </resources>

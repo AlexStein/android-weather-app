@@ -1,6 +1,7 @@
 package ru.softmine.weatherapp;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,8 @@ import java.util.List;
 import ru.softmine.weatherapp.forecast.ForecastAdapter;
 import ru.softmine.weatherapp.forecast.ForecastItem;
 import ru.softmine.weatherapp.forecast.ForecastSource;
+import ru.softmine.weatherapp.openweathermodel.WeatherRequest;
+import ru.softmine.weatherapp.openweathermodel.WeatherRequestException;
 
 public class WeekForecastFragment extends Fragment {
 
@@ -47,19 +50,42 @@ public class WeekForecastFragment extends Fragment {
             Log.d(TAG, "onViewCreated()");
         }
         recyclerView = view.findViewById(R.id.recycler_view);
-        initDataSource();
+
+        updateCurrentWeather(CityModel.getInstance().getCityName());
     }
 
     /**
      * Инициализация источника данных
      */
-    private void initDataSource() {
+    private void initDataSource(WeatherRequest request) {
         if (Logger.DEBUG) {
             Log.d(TAG, "initDataSource()");
         }
 
-        WeatherDataSource source = new ForecastSource(getResources()).init();
+        WeatherDataSource source = new ForecastSource(getResources()).init(request.getDaily());
         initRecyclerView(source.getDataSource());
+    }
+
+    private void updateCurrentWeather(String cityName) {
+        final Handler handler = new Handler();
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    WeatherRequest request = WeatherRequest.getDailyWeather(cityName);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            initDataSource(request);
+                        }
+                    });
+                } catch (WeatherRequestException e) {
+                    if (Logger.DEBUG && e.getMessage() != null) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                }
+
+            }
+        }).start();
     }
 
     private void initRecyclerView(List<ForecastItem> sourceData) {
@@ -74,7 +100,7 @@ public class WeekForecastFragment extends Fragment {
 
         // Декоратор
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL);
-        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.decorator));
+        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.decorator, getActivity().getTheme()));
         recyclerView.addItemDecoration(itemDecoration);
 
         // Адаптер

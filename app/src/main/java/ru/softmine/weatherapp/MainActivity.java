@@ -139,13 +139,19 @@ public class MainActivity extends BaseActivity {
         }
 
         if (resultCode == RESULT_OK) {
-            String cityName = data.getStringExtra(BundleKeys.CITY_NAME);
-            String tempUnit = data.getStringExtra(BundleKeys.TEMP_UNITS);
-            String speedUnit = data.getStringExtra(BundleKeys.SPEED_UNITS);
+            if (data == null) {
+                if (Logger.DEBUG) {
+                    Log.d(TAG, "onActivityResult: data is null");
+                }
+                return;
+            }
 
+            String cityName = data.getStringExtra(BundleKeys.CITY_NAME);
             CurrentWeatherFragment fragment = (CurrentWeatherFragment)
                     getSupportFragmentManager().findFragmentById(R.id.current_weather);
-            fragment.setCity(cityName, tempUnit, speedUnit);
+            if (fragment != null) {
+                fragment.setCity(cityName);
+            }
         }
     }
 

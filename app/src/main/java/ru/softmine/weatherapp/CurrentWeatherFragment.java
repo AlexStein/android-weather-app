@@ -1,7 +1,10 @@
 package ru.softmine.weatherapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import java.util.Random;
+import ru.softmine.weatherapp.openweathermodel.WeatherRequest;
+import ru.softmine.weatherapp.openweathermodel.WeatherRequestException;
 
 public class CurrentWeatherFragment extends Fragment {
 
@@ -27,8 +31,6 @@ public class CurrentWeatherFragment extends Fragment {
     private TextView tempsTextView;
     private TextView windTextView;
     private ImageView weatherIconImageView;
-
-    private final Random rand = new Random();
 
     public CurrentWeatherFragment() {
         // Required empty public constructor
@@ -47,21 +49,74 @@ public class CurrentWeatherFragment extends Fragment {
 
         // Первый запуск, заполняем значениями по умолчанию
         if (savedInstanceState == null) {
-            String cityName = getResources().getString(R.string.moscow_city);
-            String forecast = getResources().getString(R.string.forecastSunny);;
-            String temperature = getResources().getString(R.string.temperature_example);
-            String windSpeed = getResources().getString(R.string.wind_example);
-
-            forecastTextView.setText(forecast);
-            tempsTextView.setText(temperature);
-            windTextView.setText(windSpeed);
-            // Иконку будет выставлять в зависимости от значения forecast
-            weatherIconImageView.setImageResource(R.drawable.sunny);
-
-            CityModel.getInstance().setCityName(cityName);
+            setCity(getString(R.string.moscow_city));
         }
 
+        // Обновить сводку погоды по нажатию н иконку погоды
+        weatherIconImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateCurrentWeather(CityModel.getInstance().getCityName());
+            }
+        });
+
         return view;
+    }
+
+    private void updateCurrentWeather(String cityName) {
+        final Handler handler = new Handler();
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    WeatherRequest request = WeatherRequest.getCurrentWeather(cityName);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateWeatherOnDisplay(request);
+                        }
+                    });
+                } catch (WeatherRequestException e) {
+                    if (Logger.DEBUG && e.getMessage() != null) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            String message = getString(R.string.weather_request_error_message);
+                            showErrorDialog(message);
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Диалог для вывода сообщения об ошибках при получении сводки погоды
+     *
+     * @param message Сообщение в теле диалога
+     */
+    private void showErrorDialog(String message) {
+        new AlertDialog.Builder(getContext())
+                .setTitle(getString(R.string.error_dialog_title))
+                .setMessage(message)
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (Logger.VERBOSE) {
+                            Log.v(TAG, "Error dialog OK pressed");
+                        }
+                    }
+                }).show();
+    }
+
+    private void updateWeatherOnDisplay(WeatherRequest request) {
+        forecastTextView.setText(request.getWeatherString());
+        tempsTextView.setText(request.getTemperatureString());
+        windTextView.setText(request.getWindString());
+
+        // Иконку будет выставлять в зависимости от значения forecast
+        weatherIconImageView.setImageResource(R.drawable.sunny);
     }
 
     @Override
@@ -133,7 +188,7 @@ public class CurrentWeatherFragment extends Fragment {
         }
 
         if (isLandscape) {
-            WeekForecastFragment forecast = (WeekForecastFragment)getFragmentManager().findFragmentById(R.id.fragment_container);
+            WeekForecastFragment forecast = (WeekForecastFragment) getFragmentManager().findFragmentById(R.id.fragment_container);
             if (forecast == null) {
                 forecast = WeekForecastFragment.createFragment();
 
@@ -145,15 +200,9 @@ public class CurrentWeatherFragment extends Fragment {
         }
     }
 
-    public void setCity(String cityName, String tempUnit, String speedUnit) {
-        int t_day = rand.nextInt(50) - 20;
-        int t_night = t_day - rand.nextInt(10);
-
-        int w_min = rand.nextInt(10);
-        int w_max = rand.nextInt(5) + w_min;
-
+    public void setCity(String cityName) {
+        CityModel.getInstance().setCityName(cityName);
         cityNameTextView.setText(cityName);
-        tempsTextView.setText(String.format(getString(R.string.temp_format), t_day, t_night, tempUnit));
-        windTextView.setText(String.format(getString(R.string.speed_format), w_min, w_max, speedUnit));
+        updateCurrentWeather(cityName);
     }
 }

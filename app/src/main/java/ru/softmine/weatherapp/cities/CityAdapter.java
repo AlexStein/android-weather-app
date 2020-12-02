@@ -20,7 +20,7 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.ViewHolder> {
 
     private final List<String> citiesData;
     private final LayoutInflater inflater;
-    private ItemClickListener mClickListener;
+    private ItemClickListener itemClickListener;
 
     public CityAdapter(Context context, List<String> data) {
         this.inflater = LayoutInflater.from(context);
@@ -56,8 +56,8 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.ViewHolder> {
 
         @Override
         public void onClick(View view) {
-            if (mClickListener != null) {
-                mClickListener.onItemClick(view, getAdapterPosition());
+            if (itemClickListener != null) {
+                itemClickListener.onItemClick(view, getAdapterPosition());
             }
         }
     }
@@ -67,7 +67,7 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.ViewHolder> {
     }
 
     public void setClickListener(ItemClickListener itemClickListener) {
-        this.mClickListener = itemClickListener;
+        this.itemClickListener = itemClickListener;
     }
 
     public interface ItemClickListener {
