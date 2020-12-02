@@ -11,13 +11,11 @@ import ru.softmine.weatherapp.openweathermodel.Daily;
 
 public class ForecastSource implements WeatherDataSource {
     private final List<ForecastItem> dataSource;
-    private final Resources resources;
 
     private final Random rand = new Random();
 
     public ForecastSource(Resources resources) {
         this.dataSource = new ArrayList<>(7);
-        this.resources = resources;
     }
 
     public ForecastSource init(Daily[] daily) {
