@@ -1,4 +1,17 @@
 <resources>
+    <string-array name="cities">
+        <item>@string/moscow_city</item>
+        <item>@string/petersburg_city</item>
+        <item>@string/samara_city</item>
+        <item>@string/kazan_city</item>
+        <item>@string/tver_city</item>
+        <item>@string/tula_city</item>
+        <item>@string/yaroslavl_city</item>
+        <item>@string/razan_city</item>
+        <item>@string/smolensk_city</item>
+        <item>@string/kaluga_city</item>
+    </string-array>
+
     <string-array name="week_days">
         <item>@string/monday</item>
         <item>@string/tuesday</item>
@@ -32,4 +45,5 @@
     <array name="pictures">
         <item>@drawable/sunny</item>
     </array>
+
 </resources>

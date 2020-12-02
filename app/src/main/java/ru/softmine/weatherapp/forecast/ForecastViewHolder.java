@@ -1,4 +1,4 @@
-package ru.softmine.weatherapp;
+package ru.softmine.weatherapp.forecast;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -6,6 +6,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import ru.softmine.weatherapp.R;
 
 public class ForecastViewHolder extends RecyclerView.ViewHolder {
 
