@@ -4,16 +4,18 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = MainActivity.class.getName();
     private static final int CITY_RESULT = 0xAA;
+    private static final int SETTING_CODE = 0xBB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +130,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode != CITY_RESULT) {
             super.onActivityResult(requestCode, resultCode, data);
+
+            // Вернулись из настроек
+            if (requestCode == SETTING_CODE) {
+                recreate();
+            }
             return;
         }
 
@@ -140,5 +147,24 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().findFragmentById(R.id.current_weather);
             fragment.setCity(cityName, tempUnit, speedUnit);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivityForResult(intent, SETTING_CODE);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

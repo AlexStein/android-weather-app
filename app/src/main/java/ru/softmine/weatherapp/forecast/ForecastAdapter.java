@@ -1,5 +1,6 @@
-package ru.softmine.weatherapp;
+package ru.softmine.weatherapp.forecast;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +13,19 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
+import ru.softmine.weatherapp.Logger;
+import ru.softmine.weatherapp.R;
+
+/**
+ * Адаптер для прогноза погоды на несколько дней
+ */
 public class ForecastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = ForecastAdapter.class.getName();
 
-    SimpleDateFormat sdf = new SimpleDateFormat("EEE dd.MM", Locale.getDefault());
+    private SimpleDateFormat sdf;
+    private String tmf;
+    private String temp_units;
 
     private final List<ForecastItem> dataSource;
 
@@ -27,9 +36,14 @@ public class ForecastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
+        Context context = parent.getContext();
+        View view = LayoutInflater.from(context)
                 .inflate(R.layout.forecast_list_item, parent, false);
         RecyclerView.ViewHolder vh = new ForecastViewHolder(view);
+
+        sdf = new SimpleDateFormat(context.getString(R.string.day_fmt), Locale.getDefault());
+        tmf = context.getString(R.string.temp_format);
+        temp_units = context.getString(R.string.celsius);
 
         if (Logger.DEBUG) {
             Log.d(TAG, "onCreateViewHolder");
@@ -44,7 +58,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         ((ForecastViewHolder) holder).setData(
                 sdf.format(i.getDate()),
                 R.drawable.sunny,
-                String.format(Locale.getDefault(), "%d ... %d C", i.getTempMin(), i.getTempMax()),
+                String.format(Locale.getDefault(), tmf, i.getTempMin(), i.getTempMax(), temp_units),
                 i.getCondition());
     }
 

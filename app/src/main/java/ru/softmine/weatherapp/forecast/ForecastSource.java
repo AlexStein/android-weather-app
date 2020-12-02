@@ -1,4 +1,4 @@
-package ru.softmine.weatherapp;
+package ru.softmine.weatherapp.forecast;
 
 import android.content.res.Resources;
 
@@ -8,9 +8,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import ru.softmine.weatherapp.R;
+import ru.softmine.weatherapp.WeatherDataSource;
+
 public class ForecastSource implements WeatherDataSource {
-    private final List<ForecastItem> dataSource;   // строим этот источник данных
-    private final Resources resources;    // ресурсы приложения
+    private final List<ForecastItem> dataSource;
+    private final Resources resources;
 
     private final Random rand = new Random();
 

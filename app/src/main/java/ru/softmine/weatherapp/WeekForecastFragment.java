@@ -15,6 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import ru.softmine.weatherapp.forecast.ForecastAdapter;
+import ru.softmine.weatherapp.forecast.ForecastItem;
+import ru.softmine.weatherapp.forecast.ForecastSource;
+
 public class WeekForecastFragment extends Fragment {
 
     private static final String TAG = WeekForecastFragment.class.getName();
