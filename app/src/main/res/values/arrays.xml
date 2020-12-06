@@ -23,37 +23,4 @@
         <item>@string/direction_ne</item>
     </string-array>
 
-    <string-array name="week_days">
-        <item>@string/monday</item>
-        <item>@string/tuesday</item>
-        <item>@string/wednesday</item>
-        <item>@string/thursday</item>
-        <item>@string/friday</item>
-        <item>@string/saturday</item>
-        <item>@string/sunday</item>
-    </string-array>
-
-    <string-array name="temps">
-        <item>@string/temperature_example</item>
-        <item>@string/temperature_example</item>
-        <item>@string/temperature_example</item>
-        <item>@string/temperature_example</item>
-        <item>@string/temperature_example</item>
-        <item>@string/temperature_example</item>
-        <item>@string/temperature_example</item>
-    </string-array>
-
-    <string-array name="forecasts">
-        <item>@string/forecastSunny</item>
-        <item>@string/forecastSunny</item>
-        <item>@string/forecastSunny</item>
-        <item>@string/forecastSunny</item>
-        <item>@string/forecastSunny</item>
-        <item>@string/forecastSunny</item>
-        <item>@string/forecastSunny</item>
-    </string-array>
-
-    <array name="pictures">
-        <item>@drawable/sunny</item>
-    </array>
 </resources>

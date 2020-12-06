@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import ru.softmine.weatherapp.history.HistoryDataSource;
 import ru.softmine.weatherapp.openweathermodel.WeatherRequest;
 import ru.softmine.weatherapp.openweathermodel.WeatherRequestException;
 
@@ -114,6 +115,14 @@ public class CurrentWeatherFragment extends Fragment {
         forecastTextView.setText(request.getWeatherString());
         tempsTextView.setText(request.getTemperatureString());
         windTextView.setText(request.getWindString());
+
+        // Обновим данные в истории
+        String cityName = CityModel.getInstance().getCityName();
+        if (Logger.DEBUG) {
+            Log.d(TAG, "updateWeatherOnDisplay()");
+        }
+        HistoryDataSource.updateHistoryItem(cityName, request.getTemperatureString(),
+                request.getWeatherString(), request.getWindString());
 
         // Иконку будет выставлять в зависимости от значения forecast
         weatherIconImageView.setImageResource(R.drawable.sunny);

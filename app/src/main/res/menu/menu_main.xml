@@ -4,8 +4,23 @@
     android:layout_height="0dp"
     android:layout_width="match_parent">
     <item
-        android:id="@+id/action_settings"
-        android:icon="@android:drawable/ic_menu_manage"
-        android:title="@string/settings"
+        android:id="@+id/action_refresh"
+        android:icon="@android:drawable/ic_menu_rotate"
+        android:title="@string/refresh"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_history"
+        android:icon="@android:drawable/ic_menu_month"
+        android:title="@string/history"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_change_city"
+        android:icon="@android:drawable/ic_menu_mylocation"
+        android:title="@string/change_city"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="@string/settings"
+        app:showAsAction="never" />
 </menu>

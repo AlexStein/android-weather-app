@@ -52,11 +52,11 @@ public class CurrentWeather {
 
     public String getTempString() {
         return String.format(Locale.getDefault(), res.getString(R.string.current_temp_format),
-                getTemp(), getFeelsLike(), "C");
+                getTemp(), getFeelsLike(), res.getString(R.string.celsius));
     }
 
     public String getWindString() {
         return String.format(Locale.getDefault(), res.getString(R.string.current_wind_format),
-                getWindSpeedUnits(), "m/s", getWindDirectionName());
+                getWindSpeedUnits(), res.getString(R.string.m_s), getWindDirectionName());
     }
 }

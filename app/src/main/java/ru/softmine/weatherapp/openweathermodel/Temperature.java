@@ -5,6 +5,8 @@ package ru.softmine.weatherapp.openweathermodel;
  */
 public class Temperature {
 
+    private final float K = 273.15f;
+
     private float day;
     private float min;
     private float max;
@@ -12,11 +14,29 @@ public class Temperature {
     private float eve;
     private float morn;
 
+    // At the moment we took Celsius as default
     public float getMin() {
-        return Math.round(min - 273.15f);
+        return getMinCelsius();
     }
 
+    // At the moment we took Celsius as default
     public float getMax() {
-        return Math.round(max - 273.15f);
+        return getMaxCelsius();
+    }
+
+    public float getMinCelsius() {
+        return Math.round(min - K);
+    }
+
+    public float getMaxCelsius() {
+        return Math.round(max - K);
+    }
+
+    public float getMinFahrenheit() {
+        return Math.round((min - K) * 1.8 + 32);
+    }
+
+    public float getMaxFahrenheit() {
+        return Math.round((min - K) * 1.8 + 32);
     }
 }
