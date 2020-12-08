@@ -4,15 +4,12 @@ import android.content.res.Resources;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import ru.softmine.weatherapp.WeatherDataSource;
 import ru.softmine.weatherapp.openweathermodel.Daily;
 
 public class ForecastSource implements WeatherDataSource {
     private final List<ForecastItem> dataSource;
-
-    private final Random rand = new Random();
 
     public ForecastSource(Resources resources) {
         this.dataSource = new ArrayList<>(7);
