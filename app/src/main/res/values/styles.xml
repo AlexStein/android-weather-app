@@ -15,10 +15,14 @@
     </style>
 
     <style name="AppDarkTheme" parent="Theme.MaterialComponents">
-
+        <item name="back_color">@android:color/white</item>
+        <item name="level_positive_color">@android:color/holo_red_dark</item>
+        <item name="level_negative_color">@android:color/holo_blue_dark</item>
     </style>
     <style name="AppTheme" parent="Theme.MaterialComponents.Light">
-
+        <item name="back_color">@android:color/darker_gray</item>
+        <item name="level_positive_color">@android:color/holo_red_light</item>
+        <item name="level_negative_color">@android:color/holo_blue_light</item>
     </style>
 
     <style name="Theme.Menu.NoActionBar">

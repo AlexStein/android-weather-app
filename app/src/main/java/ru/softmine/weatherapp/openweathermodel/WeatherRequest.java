@@ -1,5 +1,7 @@
 package ru.softmine.weatherapp.openweathermodel;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -13,8 +15,11 @@ import java.util.stream.Collectors;
 import javax.net.ssl.HttpsURLConnection;
 
 import ru.softmine.weatherapp.BuildConfig;
+import ru.softmine.weatherapp.constants.Logger;
 
 public class WeatherRequest {
+
+    private static final String TAG = WeatherRequest.class.getName();
 
     private static final String WEATHER_API_KEY = BuildConfig.WEATHER_API_KEY;
     private static final String WEB_CURRENT_URL = "https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s";
@@ -34,6 +39,10 @@ public class WeatherRequest {
 
     public String getTemperatureString() {
         return current.getTempString();
+    }
+
+    public int getTemperature() {
+        return current.getTemp();
     }
 
     public String getWindString() {
@@ -72,6 +81,9 @@ public class WeatherRequest {
                     city.getLat(), city.getLon(), WEATHER_API_KEY));
         }
 
+        if (Logger.VERBOSE) {
+            Log.v(TAG, String.format("getCurrentWeather URI: %s", uri));
+        }
         String result = getResultForUri(uri);
 
         Gson gson = new Gson();
@@ -103,6 +115,9 @@ public class WeatherRequest {
                     city.getLat(), city.getLon(), WEATHER_API_KEY));
         }
 
+        if (Logger.VERBOSE) {
+            Log.v(TAG, String.format("getDailyWeather URI: %s", uri));
+        }
         String result = getResultForUri(uri);
 
         Gson gson = new Gson();
@@ -113,12 +128,14 @@ public class WeatherRequest {
             throw new WeatherRequestException(e.getMessage());
         }
 
+        if (weatherRequest == null) {
+            throw new WeatherRequestException("No data");
+        }
+
         return weatherRequest;
     }
 
     private static WeatherRequest getCity(String cityName) throws WeatherRequestException {
-        WeatherRequest weatherRequest = null;
-
         final URL uri;
         try {
             uri = new URL(String.format(WEB_CURRENT_URL, cityName, WEATHER_API_KEY));
@@ -126,13 +143,24 @@ public class WeatherRequest {
             throw new WeatherRequestException("MalformedURLException: " + String.format(WEB_CURRENT_URL, cityName, WEATHER_API_KEY));
         }
 
+        if (Logger.VERBOSE) {
+            Log.v(TAG, String.format("getCity URI: %s", uri));
+        }
         String result = getResultForUri(uri);
 
+        WeatherRequest weatherRequest = null;
         Gson gson = new Gson();
         try {
             weatherRequest = gson.fromJson(result, WeatherRequest.class);
         } catch (JsonSyntaxException e) {
+            if (Logger.DEBUG && e.getMessage() != null) {
+                Log.d(TAG, e.getMessage());
+            }
             throw new WeatherRequestException(e.getMessage());
+        }
+
+        if (weatherRequest == null) {
+            throw new WeatherRequestException("No city data");
         }
 
         return weatherRequest;
@@ -144,11 +172,15 @@ public class WeatherRequest {
         try {
             urlConnection = (HttpsURLConnection) uri.openConnection();
             urlConnection.setRequestMethod("GET");
-            urlConnection.setReadTimeout(10000);
+            urlConnection.setReadTimeout(5000);
 
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             result = in.lines().collect(Collectors.joining("\n"));
+
         } catch (Exception e) {
+            if (Logger.DEBUG && e.getMessage() != null) {
+                Log.d(TAG, e.getMessage());
+            }
             throw new WeatherRequestException(e.getMessage());
         } finally {
             if (urlConnection != null) {

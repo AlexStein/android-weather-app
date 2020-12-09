@@ -16,16 +16,26 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import ru.softmine.weatherapp.cities.CityModel;
+import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.forecast.ForecastAdapter;
 import ru.softmine.weatherapp.forecast.ForecastItem;
 import ru.softmine.weatherapp.forecast.ForecastSource;
+import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
+import ru.softmine.weatherapp.interfaces.Updatable;
+import ru.softmine.weatherapp.interfaces.WeatherDataSource;
 import ru.softmine.weatherapp.openweathermodel.WeatherRequest;
 import ru.softmine.weatherapp.openweathermodel.WeatherRequestException;
 
-public class WeekForecastFragment extends Fragment {
+public class WeekForecastFragment extends Fragment implements Updatable {
 
     private static final String TAG = WeekForecastFragment.class.getName();
+
+    private WeatherDataSource source;
     private RecyclerView recyclerView;
+    private ForecastAdapter adapter;
+
+    private OnFragmentErrorListener errorListener;
 
     public static WeekForecastFragment createFragment() {
         if (Logger.DEBUG) {
@@ -35,13 +45,31 @@ public class WeekForecastFragment extends Fragment {
         return new WeekForecastFragment();
     }
 
+    public void setOnErrorListener(OnFragmentErrorListener listener) {
+        this.errorListener = listener;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (Logger.DEBUG) {
             Log.d(TAG, "onCreateView()");
         }
-        return inflater.inflate(R.layout.fragment_week_forecast_list, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_week_forecast_list, container, false);
+
+        recyclerView = view.findViewById(R.id.recycler_view);
+        try {
+            errorListener = ((MainActivity) getActivity()).getErrorListener();
+        } catch (NullPointerException e) {
+            errorListener = new OnFragmentErrorListener() {
+                @Override
+                public void onFragmentError(String message) {
+                    Log.e(TAG, message);
+                }
+            };
+        }
+        return view;
     }
 
     @Override
@@ -49,21 +77,11 @@ public class WeekForecastFragment extends Fragment {
         if (Logger.DEBUG) {
             Log.d(TAG, "onViewCreated()");
         }
-        recyclerView = view.findViewById(R.id.recycler_view);
 
-        updateCurrentWeather(CityModel.getInstance().getCityName());
-    }
-
-    /**
-     * Инициализация источника данных
-     */
-    private void initDataSource(WeatherRequest request) {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "initDataSource()");
-        }
-
-        WeatherDataSource source = new ForecastSource(getResources()).init(request.getDaily());
+        source = new ForecastSource();
         initRecyclerView(source.getDataSource());
+
+        update();
     }
 
     private void updateCurrentWeather(String cityName) {
@@ -75,15 +93,25 @@ public class WeekForecastFragment extends Fragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            initDataSource(request);
+                            source = new ForecastSource().init(request.getDaily());
+                            adapter.update(source.getDataSource());
+                            adapter.notifyDataSetChanged();
+                            if (Logger.DEBUG) {
+                                Log.d(TAG, "notifyDataSetChanged");
+                            }
                         }
                     });
                 } catch (WeatherRequestException e) {
                     if (Logger.DEBUG && e.getMessage() != null) {
                         Log.d(TAG, e.getMessage());
                     }
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            errorListener.onFragmentError(e.getMessage());
+                        }
+                    });
                 }
-
             }
         }).start();
     }
@@ -104,7 +132,12 @@ public class WeekForecastFragment extends Fragment {
         recyclerView.addItemDecoration(itemDecoration);
 
         // Адаптер
-        ForecastAdapter adapter = new ForecastAdapter(sourceData);
+        adapter = new ForecastAdapter(sourceData);
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void update() {
+        updateCurrentWeather(CityModel.getInstance().getCityName());
     }
 }

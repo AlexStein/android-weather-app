@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ThermometerView">
+        <attr name="back_color" format="color" />
+        <attr name="level_positive_color" format="color" />
+        <attr name="level_negative_color" format="color" />
+        <attr name="level_degrees" format="integer" />
+    </declare-styleable>
+</resources>

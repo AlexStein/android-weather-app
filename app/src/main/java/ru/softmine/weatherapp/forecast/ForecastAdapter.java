@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-import ru.softmine.weatherapp.Logger;
+import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.R;
 
 /**
@@ -65,5 +65,11 @@ public class ForecastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getItemCount() {
         return dataSource.size();
+    }
+
+    public void update(List<ForecastItem> dataSource){
+        this.dataSource.clear();
+        this.dataSource.addAll(dataSource);
+        notifyDataSetChanged();
     }
 }

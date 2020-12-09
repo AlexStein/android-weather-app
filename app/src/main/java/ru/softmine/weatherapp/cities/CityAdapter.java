@@ -45,6 +45,10 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.ViewHolder> {
         return citiesData.size();
     }
 
+    public boolean hasCity(String cityName) {
+        return citiesData.contains(cityName);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView textViewCityName;
 

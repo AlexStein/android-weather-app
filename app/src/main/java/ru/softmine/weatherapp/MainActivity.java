@@ -3,7 +3,6 @@ package ru.softmine.weatherapp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +15,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
+import ru.softmine.weatherapp.cities.CityModel;
+import ru.softmine.weatherapp.dialogs.CitySelectDialogFragment;
+import ru.softmine.weatherapp.dialogs.ErrorDialog;
+import ru.softmine.weatherapp.dialogs.OnDialogListener;
+import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
+
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getName();
@@ -24,19 +29,35 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private static final int SETTING_CODE = 0xBB;
 
     private DrawerLayout drawer;
+    private CitySelectDialogFragment citySelectDialogFragment;
+
+    private CurrentWeatherFragment currentWeatherFragment;
+    private WeekForecastFragment forecastFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        currentWeatherFragment = (CurrentWeatherFragment) getSupportFragmentManager().findFragmentById(R.id.current_weather);
+        if (currentWeatherFragment != null) {
+            currentWeatherFragment.setOnErrorListener(getErrorListener());
+        }
+
         initDrawer();
 
         if (savedInstanceState == null) {
-            WeekForecastFragment forecast = new WeekForecastFragment();
+            forecastFragment = new WeekForecastFragment();
+            forecastFragment.setOnErrorListener(getErrorListener());
+
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_container, forecast).commit();
+                    .replace(R.id.fragment_container, forecastFragment).commit();
+        }
+
+        if (forecastFragment != null) {
+            forecastFragment.setOnErrorListener(getErrorListener());
         }
     }
 
@@ -51,14 +72,46 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     /**
+     * Листенер для результата выбора города в диалоге
+     * final так как поведение присваивается один раз и не меняется.
+     */
+    private final OnDialogListener dialogCitySelectListener = new OnDialogListener() {
+        @Override
+        public void onDialogApply() {
+            String cityName = citySelectDialogFragment.getCityName();
+            if (currentWeatherFragment != null) {
+                currentWeatherFragment.setCity(cityName);
+            }
+            if (forecastFragment != null) {
+                forecastFragment.update();
+            }
+        }
+    };
+
+    private final OnFragmentErrorListener errorListener = new OnFragmentErrorListener() {
+        @Override
+        public void onFragmentError(String message) {
+            showError(message);
+        }
+    };
+
+    public OnFragmentErrorListener getErrorListener() {
+        return errorListener;
+    }
+
+    /**
      * Переход на выбор города, по клику на наименовании текущего города
+     * Вызывается диалог.
      *
      * @param view TextView с именем города @id/cityName
      */
     public void cityOnClick(View view) {
-        Intent intent = new Intent(this, SelectCityActivity.class);
-        startActivityForResult(intent, CITY_RESULT);
+        citySelectDialogFragment = CitySelectDialogFragment.newInstance();
+        citySelectDialogFragment.setOnDialogListener(dialogCitySelectListener);
+        citySelectDialogFragment.setOnErrorListener(errorListener);
+        citySelectDialogFragment.show(getSupportFragmentManager(), "city_select_dialog_fragment");
     }
+
 
     /**
      * Переход на страницу с информацией о городе. Например на Wiki.
@@ -76,30 +129,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode != CITY_RESULT) {
-            super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
 
-            // Вернулись из настроек
-            if (requestCode == SETTING_CODE) {
-                recreate();
-            }
-            return;
-        }
-
-        if (resultCode == RESULT_OK) {
-            if (data == null) {
-                if (Logger.DEBUG) {
-                    Log.d(TAG, "onActivityResult: data is null");
-                }
-                return;
-            }
-
-            String cityName = data.getStringExtra(BundleKeys.CITY_NAME);
-            CurrentWeatherFragment fragment = (CurrentWeatherFragment)
-                    getSupportFragmentManager().findFragmentById(R.id.current_weather);
-            if (fragment != null) {
-                fragment.setCity(cityName);
-            }
+        // Вернулись из настроек, обновим тему
+        if (requestCode == SETTING_CODE) {
+            recreate();
         }
     }
 
@@ -115,11 +149,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         switch (id) {
             case R.id.action_refresh:
+                currentWeatherFragment.update();
+                forecastFragment.update();
                 return true;
 
             case R.id.action_change_city:
-                Intent intentCity = new Intent(this, SelectCityActivity.class);
-                startActivityForResult(intentCity, CITY_RESULT);
+                startActivity(new Intent(this, CitiesActivity.class));
                 return true;
 
             case R.id.action_history:
@@ -145,8 +180,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 break;
 
             case R.id.nav_cities:
-                Intent intentCity = new Intent(this, SelectCityActivity.class);
-                startActivityForResult(intentCity, CITY_RESULT);
+                startActivity(new Intent(this, CitiesActivity.class));
                 break;
 
             case R.id.nav_history:
@@ -174,6 +208,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             super.onBackPressed();
         }
+    }
 
+    private void showError(String message) {
+        ErrorDialog errDlg = ErrorDialog.newInstance();
+        errDlg.setMessage(message);
+        errDlg.show(getSupportFragmentManager(), "error_dialog_fragment");
     }
 }

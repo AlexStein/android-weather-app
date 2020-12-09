@@ -62,7 +62,7 @@ public class AboutActivity extends BaseActivity implements NavigationView.OnNavi
                 break;
 
             case R.id.nav_cities:
-                startActivity(new Intent(AboutActivity.this, SelectCityActivity.class));
+                startActivity(new Intent(AboutActivity.this, CitiesActivity.class));
                 break;
 
             case R.id.nav_history:

@@ -16,7 +16,7 @@
             android:theme="@style/Theme.WeatherApp.NoActionBar"></activity>
         <activity android:name=".HistoryActivity" />
         <activity
-            android:name=".SelectCityActivity"
+            android:name=".CitiesActivity"
             android:label="@string/title_activity_select_city_activity" />
         <activity
             android:name=".SettingsActivity"

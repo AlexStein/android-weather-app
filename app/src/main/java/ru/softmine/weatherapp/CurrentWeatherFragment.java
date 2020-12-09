@@ -1,8 +1,5 @@
 package ru.softmine.weatherapp;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -15,17 +12,22 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
+import ru.softmine.weatherapp.cities.CityModel;
+import ru.softmine.weatherapp.constants.BundleKeys;
+import ru.softmine.weatherapp.constants.Logger;
+import ru.softmine.weatherapp.custom.ThermometerView;
 import ru.softmine.weatherapp.history.HistoryDataSource;
+import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
+import ru.softmine.weatherapp.interfaces.Updatable;
 import ru.softmine.weatherapp.openweathermodel.WeatherRequest;
 import ru.softmine.weatherapp.openweathermodel.WeatherRequestException;
 
-public class CurrentWeatherFragment extends Fragment {
+public class CurrentWeatherFragment extends Fragment implements Updatable {
 
     private static final String TAG = CurrentWeatherFragment.class.getName();
 
-    private boolean isLandscape;
+    private OnFragmentErrorListener errorListener;
 
     private TextView cityNameTextView;
     private TextView forecastTextView;
@@ -33,8 +35,14 @@ public class CurrentWeatherFragment extends Fragment {
     private TextView windTextView;
     private ImageView weatherIconImageView;
 
+    private ThermometerView thermometerView;
+
     public CurrentWeatherFragment() {
         // Required empty public constructor
+    }
+
+    public void setOnErrorListener(OnFragmentErrorListener listener) {
+        this.errorListener = listener;
     }
 
     @Override
@@ -48,18 +56,33 @@ public class CurrentWeatherFragment extends Fragment {
         windTextView = view.findViewById(R.id.windTextView);
         weatherIconImageView = view.findViewById(R.id.weatherIconImageView);
 
+        // Термометр
+        thermometerView = view.findViewById(R.id.thermometerView);
+
         // Первый запуск, заполняем значениями по умолчанию
         if (savedInstanceState == null) {
             setCity(getString(R.string.moscow_city));
+            thermometerView.setLevel(0);
         }
 
         // Обновить сводку погоды по нажатию н иконку погоды
         weatherIconImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateCurrentWeather(CityModel.getInstance().getCityName());
+                update();
             }
         });
+
+        try {
+            errorListener = ((MainActivity) getActivity()).getErrorListener();
+        } catch (NullPointerException e) {
+            errorListener = new OnFragmentErrorListener() {
+                @Override
+                public void onFragmentError(String message) {
+                    Log.e(TAG, message);
+                }
+            };
+        }
 
         return view;
     }
@@ -83,32 +106,12 @@ public class CurrentWeatherFragment extends Fragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            String message = getString(R.string.weather_request_error_message);
-                            showErrorDialog(message);
+                            errorListener.onFragmentError(e.getMessage());
                         }
                     });
                 }
             }
         }).start();
-    }
-
-    /**
-     * Диалог для вывода сообщения об ошибках при получении сводки погоды
-     *
-     * @param message Сообщение в теле диалога
-     */
-    private void showErrorDialog(String message) {
-        new AlertDialog.Builder(getContext())
-                .setTitle(getString(R.string.error_dialog_title))
-                .setMessage(message)
-                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (Logger.VERBOSE) {
-                            Log.v(TAG, "Error dialog OK pressed");
-                        }
-                    }
-                }).show();
     }
 
     private void updateWeatherOnDisplay(WeatherRequest request) {
@@ -126,21 +129,9 @@ public class CurrentWeatherFragment extends Fragment {
 
         // Иконку будет выставлять в зависимости от значения forecast
         weatherIconImageView.setImageResource(R.drawable.sunny);
-    }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        isLandscape = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
-
-        if (Logger.DEBUG) {
-            Log.d(TAG, "onActivityCreated()");
-        }
-
-        if (isLandscape) {
-            showForecast();
-        }
+        // Установить уровень на градуснике
+        thermometerView.setLevel(request.getTemperature());
     }
 
     @Override
@@ -191,27 +182,14 @@ public class CurrentWeatherFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    private void showForecast() {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "showForecast()");
-        }
-
-        if (isLandscape) {
-            WeekForecastFragment forecast = (WeekForecastFragment) getFragmentManager().findFragmentById(R.id.fragment_container);
-            if (forecast == null) {
-                forecast = WeekForecastFragment.createFragment();
-
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.fragment_container, forecast);  // замена фрагмента
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
-            }
-        }
-    }
-
     public void setCity(String cityName) {
         CityModel.getInstance().setCityName(cityName);
         cityNameTextView.setText(cityName);
         updateCurrentWeather(cityName);
+    }
+
+    @Override
+    public void update() {
+        updateCurrentWeather(CityModel.getInstance().getCityName());
     }
 }

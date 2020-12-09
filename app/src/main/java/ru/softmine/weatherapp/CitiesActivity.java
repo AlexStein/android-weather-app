@@ -1,12 +1,12 @@
 package ru.softmine.weatherapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,19 +17,20 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import ru.softmine.weatherapp.cities.CityAdapter;
+import ru.softmine.weatherapp.cities.CityModel;
 
-public class SelectCityActivity extends BaseActivity implements CityAdapter.ItemClickListener {
+/**
+ * Список всех известных нам городов, с возможностью просмотра информации
+ */
+public class CitiesActivity extends BaseActivity implements CityAdapter.ItemClickListener {
 
-    private static final String TAG = SelectCityActivity.class.getName();
+    private static final String TAG = CitiesActivity.class.getName();
 
     private CityAdapter adapter;
 
     private EditText editText;
-    private RadioGroup radioGroupSpeed;
-    private RadioGroup radioGroupTemp;
 
     ArrayList<String> citiesNames;
 
@@ -44,15 +45,10 @@ public class SelectCityActivity extends BaseActivity implements CityAdapter.Item
 
         RecyclerView recyclerView = findViewById(R.id.city_listview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        int topItems = Math.min(citiesNames.size(), 5);
 
-        // В списке видим некий топ5.
-        adapter = new CityAdapter(this, citiesNames.subList(0, topItems));
+        adapter = new CityAdapter(this, citiesNames);
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
-
-        radioGroupSpeed = findViewById(R.id.radioGroupSpeed);
-        radioGroupTemp = findViewById(R.id.radioGroupTemp);
 
         String currentCityName = CityModel.getInstance().getCityName();
         editText = findViewById(R.id.editTextCityName);
@@ -85,42 +81,23 @@ public class SelectCityActivity extends BaseActivity implements CityAdapter.Item
     public void onItemClick(View view, int position) {
         String cityName = adapter.getItem(position);
         editText.setText(cityName);
-        CityModel.getInstance().setCityName(cityName);
     }
 
-    public void onButtonApplyClick(View view) {
-
+    /**
+     * Переход на википедию
+     */
+    public void onButtonInfoClick(View view) {
         if (!inputIsCorrect) {
             Snackbar.make(view, R.string.city_activity_wrong_input, BaseTransientBottomBar.LENGTH_LONG).show();
             return;
         }
 
         String cityName = editText.getText().toString();
-        Intent intentResult = new Intent();
-        intentResult.putExtra(BundleKeys.CITY_NAME, cityName);
+        String url = String.format(getString(R.string.wiki_url_format), cityName);
 
-        if (radioGroupTemp.getCheckedRadioButtonId() == R.id.radioF) {
-            intentResult.putExtra(BundleKeys.TEMP_UNITS, getString(R.string.fahrenheit));
-        } else {
-            intentResult.putExtra(BundleKeys.TEMP_UNITS, getString(R.string.celsius));
-        }
-
-        switch (radioGroupSpeed.getCheckedRadioButtonId()) {
-            case R.id.radioMPH:
-                intentResult.putExtra(BundleKeys.SPEED_UNITS, getString(R.string.mph));
-                break;
-            case R.id.radioKPH:
-                intentResult.putExtra(BundleKeys.SPEED_UNITS, getString(R.string.kph));
-                break;
-            default:
-                intentResult.putExtra(BundleKeys.SPEED_UNITS, getString(R.string.m_s));
-        }
-
-        setResult(RESULT_OK, intentResult);
-
-        Snackbar.make(view, R.string.city_activity_apply_message, BaseTransientBottomBar.LENGTH_SHORT).show();
-
-        finish();
+        Uri uri = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
     }
 
     /**
@@ -129,10 +106,8 @@ public class SelectCityActivity extends BaseActivity implements CityAdapter.Item
      * @param view Поле ввода с материальным дизайном
      */
     private boolean validateCity(TextView view, String value) {
-        Pattern cityNameRegex = Pattern.compile(getString(R.string.city_regex));
-
         // Проверка на осмысленое имя
-        if (cityNameRegex.matcher(value).matches()) {
+        if (CityModel.isValidName(value)) {
             hideError(view);
         } else {
             showError(view, getResources().getString(R.string.city_validation_error));
@@ -140,7 +115,7 @@ public class SelectCityActivity extends BaseActivity implements CityAdapter.Item
         }
 
         // Город не в нашем списке
-        if (!citiesNames.contains(value)) {
+        if (!adapter.hasCity(value)) {
             showError(view, getResources().getString(R.string.city_name_not_supported));
             return false;
         }

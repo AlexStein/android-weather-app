@@ -1,11 +1,14 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <FrameLayout
         android:id="@+id/settings"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent">
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_dark"
@@ -15,4 +18,100 @@
             android:text="@string/settings_dark_theme_label"
             android:textSize="@dimen/settings_text_size" />
     </FrameLayout>
-</LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/radioGroupTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/radioC"
+        android:gravity="end"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/buttonApply"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewTempUnits">
+
+        <RadioButton
+            android:id="@+id/radioC"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/celsius" />
+
+        <RadioButton
+            android:id="@+id/radioF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fahrenheit" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/radioGroupSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/radioMS"
+        android:gravity="end"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/radioGroupTemp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewSpeedUnits">
+
+        <RadioButton
+            android:id="@+id/radioKPH"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/kph" />
+
+        <RadioButton
+            android:id="@+id/radioMPH"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mph" />
+
+        <RadioButton
+            android:id="@+id/radioMS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/m_s" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/textViewSpeedUnits"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:labelFor="@id/radioGroupSpeed"
+        android:padding="@dimen/text_view_padding"
+        android:text="@string/speed_units"
+        android:textSize="@dimen/settings_text_size"
+        app:layout_constraintBottom_toBottomOf="@+id/radioGroupSpeed"
+        app:layout_constraintEnd_toStartOf="@+id/radioGroupSpeed"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/radioGroupSpeed" />
+
+    <TextView
+        android:id="@+id/textViewTempUnits"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/radioGroupTemp"
+        android:padding="@dimen/text_view_padding"
+        android:text="@string/temp_units"
+        android:textSize="@dimen/settings_text_size"
+        app:layout_constraintBottom_toBottomOf="@+id/radioGroupTemp"
+        app:layout_constraintEnd_toStartOf="@+id/radioGroupTemp"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/radioGroupTemp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonApply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/text_view_padding"
+        android:layout_marginEnd="@dimen/text_view_padding"
+        android:text="@string/apply"
+        android:onClick="onButtonApplyClick"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

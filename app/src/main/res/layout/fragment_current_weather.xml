@@ -12,14 +12,25 @@
         android:layout_width="@dimen/image_size"
         android:layout_height="@dimen/image_size"
         android:layout_marginTop="@dimen/text_view_padding"
+        android:layout_marginEnd="@dimen/layout_space_size"
         android:contentDescription="@string/forecast_icon_description"
         android:scaleType="centerCrop"
         android:src="@drawable/sunny"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cityNameTextView" />
+
+    <ru.softmine.weatherapp.custom.ThermometerView
+        android:id="@+id/thermometerView"
+        android:layout_width="@dimen/thermometer_width"
+        android:layout_height="@dimen/image_size"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/weatherIconImageView"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/weatherIconImageView"
+        app:layout_constraintTop_toTopOf="@+id/weatherIconImageView"
+        app:level_degrees="10" />
 
     <TextView
         android:id="@+id/tempsTextView"
