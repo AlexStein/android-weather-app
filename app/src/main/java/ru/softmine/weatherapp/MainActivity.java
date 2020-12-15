@@ -1,6 +1,9 @@
 package ru.softmine.weatherapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,10 +19,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 
 import ru.softmine.weatherapp.cities.CityModel;
+import ru.softmine.weatherapp.constants.BundleKeys;
 import ru.softmine.weatherapp.dialogs.CitySelectDialogFragment;
 import ru.softmine.weatherapp.dialogs.ErrorDialog;
-import ru.softmine.weatherapp.dialogs.OnDialogListener;
+import ru.softmine.weatherapp.interfaces.OnDialogListener;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
+import ru.softmine.weatherapp.services.WeatherIntentService;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -34,11 +39,27 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private CurrentWeatherFragment currentWeatherFragment;
     private WeekForecastFragment forecastFragment;
 
+    // Получатель широковещательного сообщения
+    private final BroadcastReceiver weatherUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean updated = intent.getBooleanExtra(BundleKeys.WEATHER_UPDATED_SUCCESS, false);
+            if (updated) {
+                currentWeatherFragment.update();
+                if (forecastFragment != null) {
+                    forecastFragment.update();
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        registerReceiver(weatherUpdateReceiver,
+                new IntentFilter(BundleKeys.BROADCAST_ACTION_WEATHER_UPDATED));
 
         currentWeatherFragment = (CurrentWeatherFragment) getSupportFragmentManager().findFragmentById(R.id.current_weather);
         if (currentWeatherFragment != null) {
@@ -149,8 +170,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         switch (id) {
             case R.id.action_refresh:
-                currentWeatherFragment.update();
-                forecastFragment.update();
+                String cityName = CityModel.getInstance().getCityName();
+                WeatherIntentService.startWeatherUpdate(this, cityName);
                 return true;
 
             case R.id.action_change_city:
@@ -184,16 +205,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 break;
 
             case R.id.nav_history:
-                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                startActivity(new Intent(this, HistoryActivity.class));
                 break;
 
             case R.id.nav_settings:
-                Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                Intent intentSettings = new Intent(this, SettingsActivity.class);
                 startActivityForResult(intentSettings, SETTING_CODE);
                 break;
 
             case R.id.nav_about:
-                startActivity(new Intent(MainActivity.this, AboutActivity.class));
+                startActivity(new Intent(this, AboutActivity.class));
                 break;
         }
 

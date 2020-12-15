@@ -1,7 +1,6 @@
 package ru.softmine.weatherapp;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +19,8 @@ import ru.softmine.weatherapp.custom.ThermometerView;
 import ru.softmine.weatherapp.history.HistoryDataSource;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
 import ru.softmine.weatherapp.interfaces.Updatable;
-import ru.softmine.weatherapp.openweathermodel.WeatherRequest;
-import ru.softmine.weatherapp.openweathermodel.WeatherRequestException;
+import ru.softmine.weatherapp.openweathermodel.WeatherParser;
+import ru.softmine.weatherapp.services.WeatherIntentService;
 
 public class CurrentWeatherFragment extends Fragment implements Updatable {
 
@@ -62,7 +61,6 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
         // Первый запуск, заполняем значениями по умолчанию
         if (savedInstanceState == null) {
             setCity(getString(R.string.moscow_city));
-            thermometerView.setLevel(0);
         }
 
         // Обновить сводку погоды по нажатию н иконку погоды
@@ -87,51 +85,24 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
         return view;
     }
 
-    private void updateCurrentWeather(String cityName) {
-        final Handler handler = new Handler();
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    WeatherRequest request = WeatherRequest.getCurrentWeather(cityName);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateWeatherOnDisplay(request);
-                        }
-                    });
-                } catch (WeatherRequestException e) {
-                    if (Logger.DEBUG && e.getMessage() != null) {
-                        Log.d(TAG, e.getMessage());
-                    }
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            errorListener.onFragmentError(e.getMessage());
-                        }
-                    });
-                }
-            }
-        }).start();
-    }
-
-    private void updateWeatherOnDisplay(WeatherRequest request) {
-        forecastTextView.setText(request.getWeatherString());
-        tempsTextView.setText(request.getTemperatureString());
-        windTextView.setText(request.getWindString());
+    private void updateWeatherOnDisplay(WeatherParser weatherParser) {
+        forecastTextView.setText(weatherParser.getWeatherString());
+        tempsTextView.setText(weatherParser.getTemperatureString());
+        windTextView.setText(weatherParser.getWindString());
 
         // Обновим данные в истории
         String cityName = CityModel.getInstance().getCityName();
         if (Logger.DEBUG) {
             Log.d(TAG, "updateWeatherOnDisplay()");
         }
-        HistoryDataSource.updateHistoryItem(cityName, request.getTemperatureString(),
-                request.getWeatherString(), request.getWindString());
+        HistoryDataSource.updateHistoryItem(cityName, weatherParser.getTemperatureString(),
+                weatherParser.getWeatherString(), weatherParser.getWindString());
 
         // Иконку будет выставлять в зависимости от значения forecast
         weatherIconImageView.setImageResource(R.drawable.sunny);
 
         // Установить уровень на градуснике
-        thermometerView.setLevel(request.getTemperature());
+        thermometerView.setLevel(weatherParser.getTemperature());
     }
 
     @Override
@@ -144,7 +115,7 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
         if (savedInstanceState != null) {
             // При восстановлении состояния выводим значение температуры и прогноза
             String forecast = savedInstanceState.getString(BundleKeys.FORECAST);
-            String temperature = savedInstanceState.getString(BundleKeys.TEMPERATURE);
+            String temperature = savedInstanceState.getString(BundleKeys.TEMPERATURE_STRING);
             String wind = savedInstanceState.getString(BundleKeys.WIND);
 
             forecastTextView = getView().findViewById(R.id.forecastTextView);
@@ -157,6 +128,10 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
 
             // Иконку будет выставлять в зависимости от значения forecast
             weatherIconImageView.setImageResource(R.drawable.sunny);
+
+            // Установить уровень на градуснике
+            int tempLevel = savedInstanceState.getInt(BundleKeys.TEMPERATURE);
+            thermometerView.setLevel(tempLevel);
         }
     }
 
@@ -174,10 +149,12 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
         String forecast = forecastTextView.getText().toString();
         String temperature = tempsTextView.getText().toString();
         String wind = windTextView.getText().toString();
+        int tempLevel = thermometerView.getLevel();
 
         outState.putString(BundleKeys.FORECAST, forecast);
-        outState.putString(BundleKeys.TEMPERATURE, temperature);
+        outState.putString(BundleKeys.TEMPERATURE_STRING, temperature);
         outState.putString(BundleKeys.WIND, wind);
+        outState.putInt(BundleKeys.TEMPERATURE, tempLevel);
 
         super.onSaveInstanceState(outState);
     }
@@ -185,11 +162,11 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
     public void setCity(String cityName) {
         CityModel.getInstance().setCityName(cityName);
         cityNameTextView.setText(cityName);
-        updateCurrentWeather(cityName);
+        WeatherIntentService.startWeatherUpdate(getContext(), cityName);
     }
 
     @Override
     public void update() {
-        updateCurrentWeather(CityModel.getInstance().getCityName());
+        updateWeatherOnDisplay(WeatherApp.getWeatherParser());
     }
 }

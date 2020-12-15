@@ -22,7 +22,7 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <item name="back_color">@android:color/darker_gray</item>
         <item name="level_positive_color">@android:color/holo_red_light</item>
-        <item name="level_negative_color">@android:color/holo_blue_light</item>
+        <item name="level_negative_color">@color/blue</item>
     </style>
 
     <style name="Theme.Menu.NoActionBar">
