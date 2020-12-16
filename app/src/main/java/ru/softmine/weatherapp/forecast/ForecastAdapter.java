@@ -13,8 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.R;
+import ru.softmine.weatherapp.constants.Logger;
 
 /**
  * Адаптер для прогноза погоды на несколько дней
@@ -22,6 +22,8 @@ import ru.softmine.weatherapp.R;
 public class ForecastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = ForecastAdapter.class.getName();
+
+    private Context context;
 
     private SimpleDateFormat sdf;
     private String tmf;
@@ -36,7 +38,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
+        context = parent.getContext();
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.forecast_list_item, parent, false);
         RecyclerView.ViewHolder vh = new ForecastViewHolder(view);
@@ -57,7 +59,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         ((ForecastViewHolder) holder).setData(
                 sdf.format(i.getDate()),
-                R.drawable.sunny,
+                i.getIcon(),
                 String.format(Locale.getDefault(), tmf, i.getTempMin(), i.getTempMax(), temp_units),
                 i.getCondition());
     }

@@ -22,8 +22,7 @@ public class WeatherRequest {
     private static final String WEATHER_API_KEY = BuildConfig.WEATHER_API_KEY;
     private static final String WEB_API_URL = "https://api.openweathermap.org/data/2.5";
     private static final String CITY_URL = "%s/weather?q=%s&appid=%s";
-    private static final String CURRENT_URL = "%s/onecall?lat=%f&lon=%f&exclude=minutely,hourly,daily,alerts&appid=%s";
-    private static final String DAILY_URL = "%s/onecall?lat=%f&lon=%f&exclude=current,minutely,hourly,alerts&appid=%s";
+    private static final String CURRENT_URL = "%s/onecall?lat=%f&lon=%f&exclude=minutely,hourly,alerts&appid=%s";
 
     private static String getResultForUri(URL uri) throws WeatherRequestException {
         String result = "";
@@ -83,7 +82,7 @@ public class WeatherRequest {
         urlString = String.format(Locale.getDefault(), CURRENT_URL,
                 WEB_API_URL, weatherParser.getLat(), weatherParser.getLon(), WEATHER_API_KEY);
         try {
-            success = WeatherParser.parseCurrent(weatherParser, getResultForUri(new URL(urlString)));
+            success = WeatherParser.parseWeather(weatherParser, getResultForUri(new URL(urlString)));
         } catch (MalformedURLException e) {
             Log.e(TAG, "MalformedURLException: " + urlString);
             return false;
@@ -97,20 +96,6 @@ public class WeatherRequest {
         if(!success) {
             if (Logger.DEBUG) {
                 Log.d(TAG, "Data process failed");
-            }
-            return false;
-        }
-
-        urlString = String.format(Locale.getDefault(), DAILY_URL,
-                WEB_API_URL, weatherParser.getLat(), weatherParser.getLon(), WEATHER_API_KEY);
-        try {
-            success = WeatherParser.parseDaily(weatherParser, getResultForUri(new URL(urlString)));
-        } catch (MalformedURLException e) {
-            Log.e(TAG, "MalformedURLException: " + urlString);
-            return false;
-        } catch (WeatherRequestException e) {
-            if (e.getMessage() != null) {
-                Log.e(TAG, e.getMessage());
             }
             return false;
         }

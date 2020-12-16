@@ -18,7 +18,7 @@
     <string name="enter_your_city">Enter your city</string>
     <string name="forecastSunny">Sunny</string>
     <string name="forecast_icon_description">Forecast icon</string>
-    <string name="temperature_example">+10 / +2 C</string>
+    <string name="temperature_example">...</string>
     <string name="settings_dark_theme_label">Switch to Dark Theme</string>
 
     <string name="apply">Apply</string>
@@ -29,7 +29,7 @@
     <string name="mph">mph</string>
     <string name="kph">kph</string>
     <string name="m_s">m/s</string>
-    <string name="wind_example">5 – 10 m/s</string>
+    <string name="wind_example">...</string>
 
     <string name="day_fmt" translatable="false">EEE dd.MM</string>
     <string name="weather_icon">Weather icon</string>
@@ -60,7 +60,7 @@
     <string name="menu_home">Home</string>
     <string name="nav_header_desc">Author avatar</string>
     <string name="nav_header_subtitle">Best app ever</string>
-    <string name="nav_header_title">Weather anewhere</string>
+    <string name="nav_header_title">Weather anywhere anytime</string>
     <string name="navigation_drawer_open">Open drawer</string>
     <string name="navigation_drawer_close">Close drawer</string>
     <string name="title_activity_about">About</string>

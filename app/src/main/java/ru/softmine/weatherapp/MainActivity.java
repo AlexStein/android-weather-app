@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -20,17 +22,17 @@ import com.google.android.material.navigation.NavigationView;
 
 import ru.softmine.weatherapp.cities.CityModel;
 import ru.softmine.weatherapp.constants.BundleKeys;
+import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.dialogs.CitySelectDialogFragment;
 import ru.softmine.weatherapp.dialogs.ErrorDialog;
 import ru.softmine.weatherapp.interfaces.OnDialogListener;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
-import ru.softmine.weatherapp.services.WeatherIntentService;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getName();
 
-    private static final int CITY_RESULT = 0xAA;
+//    private static final int CITY_RESULT = 0xAA;
     private static final int SETTING_CODE = 0xBB;
 
     private DrawerLayout drawer;
@@ -43,12 +45,24 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private final BroadcastReceiver weatherUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (Logger.DEBUG) {
+                Log.d(TAG, "BroadcastReceiver.onReceive()");
+            }
+
             boolean updated = intent.getBooleanExtra(BundleKeys.WEATHER_UPDATED_SUCCESS, false);
             if (updated) {
                 currentWeatherFragment.update();
                 if (forecastFragment != null) {
                     forecastFragment.update();
                 }
+            } else {
+                String message = intent.getStringExtra(BundleKeys.WEATHER_UPDATED_MESSAGE);
+                if (Logger.DEBUG) {
+                    Log.e(TAG, message);
+                }
+//                if (message.length() != 0) {
+//                    showError(message);
+//                }
             }
         }
     };
@@ -58,6 +72,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (Logger.DEBUG) {
+            Log.d(TAG, "onCreate()");
+        }
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         registerReceiver(weatherUpdateReceiver,
                 new IntentFilter(BundleKeys.BROADCAST_ACTION_WEATHER_UPDATED));
 
@@ -66,9 +89,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             currentWeatherFragment.setOnErrorListener(getErrorListener());
         }
 
-        initDrawer();
-
         if (savedInstanceState == null) {
+            if (Logger.DEBUG) {
+                Log.d(TAG, "savedInstanceState == null");
+            }
             forecastFragment = new WeekForecastFragment();
             forecastFragment.setOnErrorListener(getErrorListener());
 
@@ -80,6 +104,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (forecastFragment != null) {
             forecastFragment.setOnErrorListener(getErrorListener());
         }
+
+        initDrawer();
     }
 
     private void initDrawer() {
@@ -102,9 +128,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             String cityName = citySelectDialogFragment.getCityName();
             if (currentWeatherFragment != null) {
                 currentWeatherFragment.setCity(cityName);
-            }
-            if (forecastFragment != null) {
-                forecastFragment.update();
             }
         }
     };
@@ -133,7 +156,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         citySelectDialogFragment.show(getSupportFragmentManager(), "city_select_dialog_fragment");
     }
 
-
     /**
      * Переход на страницу с информацией о городе. Например на Wiki.
      *
@@ -154,7 +176,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         // Вернулись из настроек, обновим тему
         if (requestCode == SETTING_CODE) {
-            recreate();
+            if (data.getBooleanExtra(BundleKeys.THEME_CHANGED, false)) {
+                recreate();
+            }
         }
     }
 
@@ -169,9 +193,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int id = item.getItemId();
 
         switch (id) {
+            case android.R.id.home:
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    drawer.openDrawer(GravityCompat.START);
+                }
+                break;
+
             case R.id.action_refresh:
                 String cityName = CityModel.getInstance().getCityName();
-                WeatherIntentService.startWeatherUpdate(this, cityName);
+                WeatherApp.getWeatherApiHolder().requestWeatherUpdate(cityName);
                 return true;
 
             case R.id.action_change_city:
@@ -197,7 +229,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         switch (id) {
             case R.id.nav_home:
-                // Do nothing
                 break;
 
             case R.id.nav_cities:

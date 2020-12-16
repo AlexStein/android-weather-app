@@ -22,7 +22,6 @@ import ru.softmine.weatherapp.forecast.ForecastSource;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
 import ru.softmine.weatherapp.interfaces.Updatable;
 import ru.softmine.weatherapp.interfaces.WeatherDataSource;
-import ru.softmine.weatherapp.openweathermodel.WeatherParser;
 
 public class WeekForecastFragment extends Fragment implements Updatable {
 
@@ -33,6 +32,10 @@ public class WeekForecastFragment extends Fragment implements Updatable {
     private ForecastAdapter adapter;
 
     private OnFragmentErrorListener errorListener;
+
+    public WeekForecastFragment() {
+        // Required empty public constructor
+    }
 
     public static WeekForecastFragment createFragment() {
         if (Logger.DEBUG) {
@@ -103,8 +106,11 @@ public class WeekForecastFragment extends Fragment implements Updatable {
 
     @Override
     public void update() {
-        WeatherParser weatherParser = WeatherApp.getWeatherParser();
-        source = new ForecastSource().init(weatherParser.getDaily());
+        if (Logger.DEBUG) {
+            Log.d(TAG, "update()");
+        }
+
+        source = new ForecastSource().init(WeatherApp.getWeatherParser().getDaily());
         adapter.update(source.getDataSource());
         adapter.notifyDataSetChanged();
     }
