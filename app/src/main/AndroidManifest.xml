@@ -13,7 +13,8 @@
         <activity
             android:name=".AboutActivity"
             android:label="@string/title_activity_about"
-            android:theme="@style/Theme.WeatherApp.NoActionBar"></activity>
+            android:theme="@style/Theme.WeatherApp.NoActionBar" />
+
         <activity android:name=".HistoryActivity" />
         <activity
             android:name=".CitiesActivity"
@@ -30,6 +31,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".services.WeatherIntentService"
+            android:exported="false" />
+
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -17,11 +18,12 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import ru.softmine.weatherapp.constants.Logger;
-import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
 import ru.softmine.weatherapp.R;
 import ru.softmine.weatherapp.cities.CityAdapter;
 import ru.softmine.weatherapp.cities.CityModel;
+import ru.softmine.weatherapp.constants.Logger;
+import ru.softmine.weatherapp.interfaces.OnDialogListener;
+import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
 
 public class CitySelectDialogFragment extends BottomSheetDialogFragment {
 
@@ -74,6 +76,8 @@ public class CitySelectDialogFragment extends BottomSheetDialogFragment {
         citiesNames = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.cities)));
 
         editTextCityName = view.findViewById(R.id.editTextCityName);
+        editTextCityName.setSingleLine();
+        editTextCityName.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         RecyclerView recyclerView = view.findViewById(R.id.city_listview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -90,7 +94,6 @@ public class CitySelectDialogFragment extends BottomSheetDialogFragment {
             }
         });
         recyclerView.setAdapter(adapter);
-
 
         view.findViewById(R.id.buttonApply).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,7 +141,7 @@ public class CitySelectDialogFragment extends BottomSheetDialogFragment {
         }
 
         // Город не в нашем списке
-        if (!adapter.hasCity(value)) {
+        if (!citiesNames.contains(value)) {
             showError(view, getResources().getString(R.string.city_name_not_supported));
             return false;
         }

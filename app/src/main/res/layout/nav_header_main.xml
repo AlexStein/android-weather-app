@@ -24,11 +24,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:textColor="@android:color/tab_indicator_text"
+        android:textSize="@dimen/labels_text_size"
         android:text="@string/nav_header_title" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textSize="@dimen/labels_text_size"
+        android:textColor="@android:color/tab_indicator_text"
         android:text="@string/nav_header_subtitle" />
 </LinearLayout>

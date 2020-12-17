@@ -1,11 +1,19 @@
 package ru.softmine.weatherapp.openweathermodel;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Класс описывает географические координаты, получаемы в запросе погоды
  */
 public class Coord {
-    private float lat;
+    @SerializedName("lon")
+    @Expose
     private float lon;
+
+    @SerializedName("lat")
+    @Expose
+    private float lat;
 
     public float getLat() {
         return lat;

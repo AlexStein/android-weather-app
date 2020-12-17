@@ -28,20 +28,18 @@ public class ForecastItem {
     private int pressure_mm;
     private int humidity;
     private int prec_mm;
+    private String icon;
 
-    public ForecastItem(Date date, int temp_min, int temp_max, String condition) {
+    public ForecastItem(Date date, int temp_min, int temp_max, String condition, String icon) {
         this.date = date;
         this.temp_min = temp_min;
         this.temp_max = temp_max;
         this.condition = condition;
+        this.icon = icon;
     }
 
     public Date getDate() {
         return date;
-    }
-
-    public String getPartOfDay() {
-        return part_name;
     }
 
     public int getTempMin() {
@@ -50,10 +48,6 @@ public class ForecastItem {
 
     public int getTempMax() {
         return temp_max;
-    }
-
-    public int getTempAvg() {
-        return temp_avg;
     }
 
     public String getCondition() {
@@ -78,5 +72,9 @@ public class ForecastItem {
 
     public int getPrecipitation() {
         return prec_mm;
+    }
+
+    public String getIcon() {
+        return icon;
     }
 }

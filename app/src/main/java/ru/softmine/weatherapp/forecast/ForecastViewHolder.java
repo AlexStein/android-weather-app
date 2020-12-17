@@ -7,6 +7,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Picasso;
+
 import ru.softmine.weatherapp.R;
 
 public class ForecastViewHolder extends RecyclerView.ViewHolder {
@@ -25,8 +27,8 @@ public class ForecastViewHolder extends RecyclerView.ViewHolder {
         textViewForecast = itemView.findViewById(R.id.textViewForecast);
     }
 
-    public void setData(String date, int icon, String temps, String forecast) {
-        getImageViewIcon().setImageResource(icon);
+    public void setData(String date, String icon, String temps, String forecast) {
+        Picasso.get().load(icon).placeholder(R.drawable.unknown).into(imageViewIcon);
         getTextViewDate().setText(date);
         getTextViewTemp().setText(temps);
         getTextViewForecast().setText(forecast);

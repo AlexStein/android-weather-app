@@ -1,7 +1,6 @@
 package ru.softmine.weatherapp;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import ru.softmine.weatherapp.cities.CityModel;
 import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.forecast.ForecastAdapter;
 import ru.softmine.weatherapp.forecast.ForecastItem;
@@ -24,8 +22,6 @@ import ru.softmine.weatherapp.forecast.ForecastSource;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
 import ru.softmine.weatherapp.interfaces.Updatable;
 import ru.softmine.weatherapp.interfaces.WeatherDataSource;
-import ru.softmine.weatherapp.openweathermodel.WeatherRequest;
-import ru.softmine.weatherapp.openweathermodel.WeatherRequestException;
 
 public class WeekForecastFragment extends Fragment implements Updatable {
 
@@ -36,6 +32,10 @@ public class WeekForecastFragment extends Fragment implements Updatable {
     private ForecastAdapter adapter;
 
     private OnFragmentErrorListener errorListener;
+
+    public WeekForecastFragment() {
+        // Required empty public constructor
+    }
 
     public static WeekForecastFragment createFragment() {
         if (Logger.DEBUG) {
@@ -84,38 +84,6 @@ public class WeekForecastFragment extends Fragment implements Updatable {
         update();
     }
 
-    private void updateCurrentWeather(String cityName) {
-        final Handler handler = new Handler();
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    WeatherRequest request = WeatherRequest.getDailyWeather(cityName);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            source = new ForecastSource().init(request.getDaily());
-                            adapter.update(source.getDataSource());
-                            adapter.notifyDataSetChanged();
-                            if (Logger.DEBUG) {
-                                Log.d(TAG, "notifyDataSetChanged");
-                            }
-                        }
-                    });
-                } catch (WeatherRequestException e) {
-                    if (Logger.DEBUG && e.getMessage() != null) {
-                        Log.d(TAG, e.getMessage());
-                    }
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            errorListener.onFragmentError(e.getMessage());
-                        }
-                    });
-                }
-            }
-        }).start();
-    }
-
     private void initRecyclerView(List<ForecastItem> sourceData) {
         if (Logger.DEBUG) {
             Log.d(TAG, "initRecyclerView()");
@@ -138,6 +106,12 @@ public class WeekForecastFragment extends Fragment implements Updatable {
 
     @Override
     public void update() {
-        updateCurrentWeather(CityModel.getInstance().getCityName());
+        if (Logger.DEBUG) {
+            Log.d(TAG, "update()");
+        }
+
+        source = new ForecastSource().init(WeatherApp.getWeatherParser().getDaily());
+        adapter.update(source.getDataSource());
+        adapter.notifyDataSetChanged();
     }
 }

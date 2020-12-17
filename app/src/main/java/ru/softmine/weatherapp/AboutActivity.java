@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -22,6 +23,12 @@ public class AboutActivity extends BaseActivity implements NavigationView.OnNavi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         intFab();
         initDrawer();
@@ -58,19 +65,19 @@ public class AboutActivity extends BaseActivity implements NavigationView.OnNavi
 
         switch (id) {
             case R.id.nav_home:
-                startActivity(new Intent(AboutActivity.this, MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 break;
 
             case R.id.nav_cities:
-                startActivity(new Intent(AboutActivity.this, CitiesActivity.class));
+                startActivity(new Intent(this, CitiesActivity.class));
                 break;
 
             case R.id.nav_history:
-                startActivity(new Intent(AboutActivity.this, HistoryActivity.class));
+                startActivity(new Intent(this, HistoryActivity.class));
                 break;
 
             case R.id.nav_settings:
-                startActivity(new Intent(AboutActivity.this, SettingsActivity.class));
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
 
             case R.id.nav_about:
@@ -80,6 +87,18 @@ public class AboutActivity extends BaseActivity implements NavigationView.OnNavi
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            drawer.openDrawer(GravityCompat.START);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

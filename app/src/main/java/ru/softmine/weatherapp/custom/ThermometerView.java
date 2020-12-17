@@ -204,4 +204,8 @@ public class ThermometerView extends View {
         this.level = level;
         invalidate();
     }
+
+    public int getLevel() {
+        return level;
+    }
 }

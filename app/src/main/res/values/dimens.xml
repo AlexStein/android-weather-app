@@ -18,13 +18,14 @@
     <dimen name="text_view_padding">8dp</dimen>
     <dimen name="city_text_size">30sp</dimen>
     <dimen name="layout_space_size">32dp</dimen>
-    <dimen name="image_size">160dp</dimen>
+    <dimen name="image_size">128dp</dimen>
     <dimen name="info_icon_size">24dp</dimen>
-    <dimen name="current_weather_fragment_height">340dp</dimen>
+    <dimen name="weather_icon_size">32dp</dimen>
+    <dimen name="current_weather_fragment_height">300dp</dimen>
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="activity_horizontal_margin">8dp</dimen>
     <dimen name="activity_vertical_margin">8dp</dimen>
     <dimen name="history_text_size">14sp</dimen>
-    <dimen name="thermometer_width">40dp</dimen>
+    <dimen name="thermometer_width">32dp</dimen>
     <dimen name="weather_icon_view_width">48dp</dimen>
 </resources>

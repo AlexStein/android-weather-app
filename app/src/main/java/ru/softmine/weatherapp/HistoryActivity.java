@@ -29,6 +29,7 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
+            actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -58,7 +59,7 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
-            finish();
+            drawer.openDrawer(GravityCompat.START);
             return true;
         }
 
@@ -71,19 +72,19 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
 
         switch (id) {
             case R.id.nav_home:
-                startActivity(new Intent(HistoryActivity.this, MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 break;
 
             case R.id.nav_cities:
-                startActivity(new Intent(HistoryActivity.this, CitiesActivity.class));
+                startActivity(new Intent(this, CitiesActivity.class));
                 break;
 
             case R.id.nav_history:
-                startActivity(new Intent(HistoryActivity.this, HistoryActivity.class));
+                startActivity(new Intent(this, HistoryActivity.class));
                 break;
 
             case R.id.nav_settings:
-                startActivity(new Intent(HistoryActivity.this, SettingsActivity.class));
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
 
             case R.id.nav_about:
