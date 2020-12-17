@@ -4,37 +4,40 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="@dimen/text_view_padding"
     android:paddingHorizontal="@dimen/text_view_padding">
 
     <TextView
         android:id="@+id/textViewDate"
         android:layout_width="80dp"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:textAlignment="textStart" />
 
     <ImageView
         android:id="@+id/imageViewIcon"
         android:layout_width="@dimen/weather_icon_view_width"
-        android:layout_height="@dimen/info_icon_size"
+        android:layout_height="@dimen/weather_icon_size"
         android:contentDescription="@string/weather_icon"
-        app:srcCompat="@drawable/sunny" />
+        app:srcCompat="@drawable/unknown" />
 
     <TextView
         android:id="@+id/textViewTemp"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:textAlignment="textEnd"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
         android:paddingStart="@dimen/fab_margin"
         android:paddingEnd="@dimen/fab_margin"
-        android:layout_weight="1" />
+        android:textAlignment="textEnd" />
 
     <TextView
         android:id="@+id/textViewForecast"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:textAlignment="textEnd"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
         android:paddingStart="@dimen/fab_margin"
         android:paddingEnd="@dimen/fab_margin"
-        android:layout_weight="1" />
+        android:textAlignment="textEnd" />
 
 </LinearLayout>

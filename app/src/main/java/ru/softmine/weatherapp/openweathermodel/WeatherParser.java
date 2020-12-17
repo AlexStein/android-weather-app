@@ -2,28 +2,39 @@ package ru.softmine.weatherapp.openweathermodel;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import ru.softmine.weatherapp.R;
 import ru.softmine.weatherapp.WeatherApp;
 
 public class WeatherParser {
 
+    private static final String WEB_IMG_URL = "https://openweathermap.org/img/wn/%s@2x.png";
+
+    @SerializedName("name")
+    @Expose
     private String cityName;
+
+    @SerializedName("id")
+    @Expose
     private int cityId;
+
+    @SerializedName("coord")
+    @Expose
     private Coord coord;
+
+    @SerializedName("current")
+    @Expose
     private CurrentWeather current;
+
+    @SerializedName("daily")
+    @Expose
     private Daily[] daily;
 
     // Вспомогательные классы для парсинга
-    private static class CurrentParser {
+    private static class WeatherDataParser {
         private CurrentWeather current;
-
-        public CurrentWeather getCurrent() {
-            return current;
-        }
-    }
-
-    private static class DailyParser {
         private Daily[] daily;
     }
 
@@ -61,50 +72,38 @@ public class WeatherParser {
         return (city != null);
     }
 
-    public static boolean parseCurrent(WeatherParser weatherParser, String jsonString) throws WeatherRequestException {
+    public static boolean parseWeather(WeatherParser weatherParser, String jsonString) throws WeatherRequestException {
         Gson gson = new Gson();
-        CurrentParser currentParser;
+        WeatherDataParser parser;
         try {
-            currentParser = gson.fromJson(jsonString, CurrentParser.class);
+            parser = gson.fromJson(jsonString, WeatherDataParser.class);
 
         } catch (JsonSyntaxException e) {
             throw new WeatherRequestException(e.getMessage());
         }
 
-        if (currentParser != null) {
-            weatherParser.current = currentParser.current;
+        if (parser != null) {
+            weatherParser.daily = parser.daily;
+            weatherParser.current = parser.current;
         }
 
-        return (currentParser != null);
-    }
-
-    public static boolean parseDaily(WeatherParser weatherParser, String jsonString) throws WeatherRequestException {
-        Gson gson = new Gson();
-        DailyParser dailyParser;
-        try {
-            dailyParser = gson.fromJson(jsonString, DailyParser.class);
-
-        } catch (JsonSyntaxException e) {
-            throw new WeatherRequestException(e.getMessage());
-        }
-
-        if (dailyParser != null) {
-            weatherParser.daily = dailyParser.daily;
-        }
-
-        return (dailyParser != null);
+        return (parser != null);
     }
 
     public String getCityName() {
         return cityName;
     }
 
-    public int getCityId() {
-        return cityId;
-    }
-
     public String getWeatherString() {
         return current.getWeather().getMain();
+    }
+
+    public static String getWeatherIconUri(String iconName) {
+        return String.format(WEB_IMG_URL, iconName);
+    }
+
+    public String getIcon() {
+        return getWeatherIconUri(current.getWeather().getIcon());
     }
 
     public String getTemperatureString() {

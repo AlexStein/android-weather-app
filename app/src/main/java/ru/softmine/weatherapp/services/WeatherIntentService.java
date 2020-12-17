@@ -3,8 +3,10 @@ package ru.softmine.weatherapp.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import ru.softmine.weatherapp.constants.BundleKeys;
+import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.openweathermodel.WeatherRequest;
 
 /**
@@ -44,10 +46,14 @@ public class WeatherIntentService extends IntentService {
      */
     private void handleWeatherRequest(String cityName) {
         boolean success = WeatherRequest.getWeatherParser(cityName);
-        sendBroadcast(cityName, success);
+        sendBroadcastResult(cityName, success);
     }
 
-    private void sendBroadcast(String cityName, boolean success) {
+    private void sendBroadcastResult(String cityName, boolean success) {
+        if (Logger.DEBUG) {
+            Log.d(TAG, "sendBroadcastResult()");
+        }
+
         Intent broadcastIntent = new Intent(BundleKeys.BROADCAST_ACTION_WEATHER_UPDATED);
         broadcastIntent.putExtra(BundleKeys.WEATHER_UPDATED_CITY, cityName);
         broadcastIntent.putExtra(BundleKeys.WEATHER_UPDATED_SUCCESS, success);

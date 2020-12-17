@@ -1,6 +1,7 @@
 package ru.softmine.weatherapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -16,6 +17,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import ru.softmine.weatherapp.constants.BundleKeys;
 import ru.softmine.weatherapp.constants.Logger;
+import ru.softmine.weatherapp.constants.PrefKeys;
 
 public class SettingsActivity extends BaseActivity {
 
@@ -74,17 +76,23 @@ public class SettingsActivity extends BaseActivity {
             Log.d(TAG, "onButtonApplyClick");
         }
 
+        SharedPreferences sharedPref = getSharedPreferences(PrefKeys.NAME_SHARED_PREFERENCE, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
         if (themeChanged) {
             Snackbar.make(switchDarkTheme.getRootView(), R.string.app_theme_apply_message,
                     BaseTransientBottomBar.LENGTH_SHORT).show();
-
-            setDarkTheme(switchDarkTheme.isChecked());
+            editor.putBoolean(PrefKeys.IS_DARK_THEME, switchDarkTheme.isChecked());
             recreate();
         }
 
         // TODO: Сохранение настроек
         int tempUnits = radioGroupTemp.getCheckedRadioButtonId();
+        editor.putInt(PrefKeys.TEMP_UNITS, tempUnits);
+
         int speedUnits = radioGroupSpeed.getCheckedRadioButtonId();
+        editor.putInt(PrefKeys.SPEED_UNITS, speedUnits);
+        editor.apply();
 
         Intent intentResult = new Intent();
         intentResult.putExtra(BundleKeys.THEME_CHANGED, themeChanged);

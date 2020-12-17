@@ -10,5 +10,6 @@ public class BundleKeys {
 
     public static final String BROADCAST_ACTION_WEATHER_UPDATED = "ru.softmine.weatherapp.weatherupdated";
     public static final String WEATHER_UPDATED_SUCCESS = "WEATHER_UPDATED_SUCCESS";
+    public static final String WEATHER_UPDATED_MESSAGE = "WEATHER_UPDATED_MESSAGE";
     public static final String WEATHER_UPDATED_CITY = "WEATHER_UPDATED_CITY";
 }

@@ -2,6 +2,9 @@ package ru.softmine.weatherapp.openweathermodel;
 
 import android.content.res.Resources;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Locale;
 
 import ru.softmine.weatherapp.R;
@@ -11,11 +14,28 @@ public class CurrentWeather {
 
     private final Resources res;
 
+    @SerializedName("temp")
+    @Expose
     private float temp;
+
+    @SerializedName("feels_like")
+    @Expose
     private float feels_like;
+
+    @SerializedName("humidity")
+    @Expose
     private int humidity;
+
+    @SerializedName("wind_speed")
+    @Expose
     private float  wind_speed;
+
+    @SerializedName("wind_deg")
+    @Expose
     private int  wind_deg;
+
+    @SerializedName("weather")
+    @Expose
     private Weather[] weather;
 
     public CurrentWeather() {

@@ -11,6 +11,7 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:windowLightStatusBar">false</item>
         <!-- Customize your theme here. -->
     </style>
 
@@ -18,11 +19,18 @@
         <item name="back_color">@android:color/white</item>
         <item name="level_positive_color">@android:color/holo_red_dark</item>
         <item name="level_negative_color">@android:color/holo_blue_dark</item>
+        <item name="startColor">@color/black_100</item>
+        <item name="endColor">@color/dark_gray</item>
+        <item name="colorDecorator">@color/dark_gray</item>
     </style>
+
     <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <item name="back_color">@android:color/darker_gray</item>
         <item name="level_positive_color">@android:color/holo_red_light</item>
         <item name="level_negative_color">@color/blue</item>
+        <item name="startColor">?attr/colorPrimary</item>
+        <item name="endColor">?attr/colorOnPrimary</item>
+        <item name="colorDecorator">@color/light_gray</item>
     </style>
 
     <style name="Theme.Menu.NoActionBar">
