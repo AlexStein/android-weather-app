@@ -1,27 +1,31 @@
 package ru.softmine.weatherapp.forecast;
 
-import android.content.res.Resources;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.softmine.weatherapp.WeatherDataSource;
+import ru.softmine.weatherapp.interfaces.WeatherDataSource;
 import ru.softmine.weatherapp.openweathermodel.Daily;
 
 public class ForecastSource implements WeatherDataSource {
     private final List<ForecastItem> dataSource;
 
-    public ForecastSource(Resources resources) {
+    public ForecastSource() {
         this.dataSource = new ArrayList<>(7);
     }
 
     public ForecastSource init(Daily[] daily) {
+        updateSource(daily);
+        return this;
+    }
+
+    public void updateSource(Daily[] daily) {
+        dataSource.clear();
         for (Daily d : daily) {
             dataSource.add(new ForecastItem(d.getDate(),
                     Math.round(d.getTempMin()), Math.round(d.getTempMax()),
-                    d.getWeather().getMain()));
+                    d.getWeather().getMain(),
+                    d.getIcon()));
         }
-        return this;
     }
 
     public List<ForecastItem> getDataSource() {

@@ -1,7 +1,6 @@
 package ru.softmine.weatherapp.openweathermodel;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -13,130 +12,17 @@ import java.util.stream.Collectors;
 import javax.net.ssl.HttpsURLConnection;
 
 import ru.softmine.weatherapp.BuildConfig;
+import ru.softmine.weatherapp.WeatherApp;
+import ru.softmine.weatherapp.constants.Logger;
 
 public class WeatherRequest {
 
+    private static final String TAG = WeatherRequest.class.getName();
+
     private static final String WEATHER_API_KEY = BuildConfig.WEATHER_API_KEY;
-    private static final String WEB_CURRENT_URL = "https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s";
-    private static final String WEB_ONECALL_URL = "https://api.openweathermap.org/data/2.5/onecall?lat=%f&lon=%f&exclude=minutely,hourly,daily,alerts&appid=%s";
-    private static final String WEB_ONECALL_DAILY_URL = "https://api.openweathermap.org/data/2.5/onecall?lat=%f&lon=%f&exclude=current,minutely,hourly,alerts&appid=%s";
-
-    private String name;
-    private int dt;
-    private Coord coord;
-    private CurrentWeather current;
-    private Daily[] daily;
-
-
-    public String getWeatherString() {
-        return current.getWeather().getMain();
-    }
-
-    public String getTemperatureString() {
-        return current.getTempString();
-    }
-
-    public String getWindString() {
-        return current.getWindString();
-    }
-
-    public float getLat() {
-        return coord.getLat();
-    }
-
-    public float getLon() {
-        return coord.getLon();
-    }
-
-    public Daily[] getDaily() {
-        return daily;
-    }
-
-    /**
-     * Получить объект с текущей погодой для указанного города
-     *
-     * @param cityName город
-     * @return Объект погоды
-     * @throws WeatherRequestException В случае неожиданых проблем
-     */
-    public static WeatherRequest getCurrentWeather(String cityName) throws WeatherRequestException {
-        WeatherRequest city = getCity(cityName);
-        WeatherRequest weatherRequest = null;
-
-        final URL uri;
-        try {
-            uri = new URL(String.format(Locale.getDefault(), WEB_ONECALL_URL,
-                    city.getLat(), city.getLon(), WEATHER_API_KEY));
-        } catch (MalformedURLException e) {
-            throw new WeatherRequestException("MalformedURLException: " + String.format(Locale.getDefault(), WEB_ONECALL_URL,
-                    city.getLat(), city.getLon(), WEATHER_API_KEY));
-        }
-
-        String result = getResultForUri(uri);
-
-        Gson gson = new Gson();
-        try {
-            weatherRequest = gson.fromJson(result, WeatherRequest.class);
-        } catch (JsonSyntaxException e) {
-            throw new WeatherRequestException(e.getMessage());
-        }
-
-        return weatherRequest;
-    }
-
-    /**
-     * Получить объект с текущей погодой для указанного города
-     *
-     * @param cityName город
-     * @return Объект погоды
-     * @throws WeatherRequestException В случае неожиданых проблем
-     */
-    public static WeatherRequest getDailyWeather(String cityName) throws WeatherRequestException {
-        WeatherRequest city = getCity(cityName);
-
-        final URL uri;
-        try {
-            uri = new URL(String.format(Locale.getDefault(), WEB_ONECALL_DAILY_URL,
-                    city.getLat(), city.getLon(), WEATHER_API_KEY));
-        } catch (MalformedURLException e) {
-            throw new WeatherRequestException("MalformedURLException: " + String.format(Locale.getDefault(), WEB_ONECALL_URL,
-                    city.getLat(), city.getLon(), WEATHER_API_KEY));
-        }
-
-        String result = getResultForUri(uri);
-
-        Gson gson = new Gson();
-        WeatherRequest weatherRequest = null;
-        try {
-            weatherRequest = gson.fromJson(result, WeatherRequest.class);
-        } catch (JsonSyntaxException e) {
-            throw new WeatherRequestException(e.getMessage());
-        }
-
-        return weatherRequest;
-    }
-
-    private static WeatherRequest getCity(String cityName) throws WeatherRequestException {
-        WeatherRequest weatherRequest = null;
-
-        final URL uri;
-        try {
-            uri = new URL(String.format(WEB_CURRENT_URL, cityName, WEATHER_API_KEY));
-        } catch (MalformedURLException e) {
-            throw new WeatherRequestException("MalformedURLException: " + String.format(WEB_CURRENT_URL, cityName, WEATHER_API_KEY));
-        }
-
-        String result = getResultForUri(uri);
-
-        Gson gson = new Gson();
-        try {
-            weatherRequest = gson.fromJson(result, WeatherRequest.class);
-        } catch (JsonSyntaxException e) {
-            throw new WeatherRequestException(e.getMessage());
-        }
-
-        return weatherRequest;
-    }
+    private static final String WEB_API_URL = "https://api.openweathermap.org/data/2.5";
+    private static final String CITY_URL = "%s/weather?q=%s&appid=%s";
+    private static final String CURRENT_URL = "%s/onecall?lat=%f&lon=%f&exclude=minutely,hourly,alerts&appid=%s";
 
     private static String getResultForUri(URL uri) throws WeatherRequestException {
         String result = "";
@@ -144,17 +30,76 @@ public class WeatherRequest {
         try {
             urlConnection = (HttpsURLConnection) uri.openConnection();
             urlConnection.setRequestMethod("GET");
-            urlConnection.setReadTimeout(10000);
+            urlConnection.setReadTimeout(5000);
 
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             result = in.lines().collect(Collectors.joining("\n"));
+
         } catch (Exception e) {
+            if (Logger.DEBUG && e.getMessage() != null) {
+                Log.d(TAG, e.getMessage());
+            }
             throw new WeatherRequestException(e.getMessage());
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
         }
+
         return result;
+    }
+
+    /**
+     * Получение сводки для города в одном методе
+     *
+     * @param cityName Наименование города
+     * @return Истина, если обновление полностью успешно
+     */
+    public static boolean getWeatherParser(String cityName) {
+        WeatherParser weatherParser = WeatherApp.getWeatherParser();
+        String urlString = String.format(CITY_URL, WEB_API_URL, cityName, WEATHER_API_KEY);
+        boolean success = false;
+
+        try {
+            success = WeatherParser.parseCity(weatherParser, getResultForUri(new URL(urlString)));
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "MalformedURLException: " + urlString);
+            return false;
+        } catch (WeatherRequestException e) {
+            if (e.getMessage() != null) {
+                Log.e(TAG, e.getMessage());
+            }
+            return false;
+        }
+
+        if(!success) {
+            if (Logger.DEBUG) {
+                Log.d(TAG, "Data process failed");
+            }
+            return false;
+        }
+
+        urlString = String.format(Locale.getDefault(), CURRENT_URL,
+                WEB_API_URL, weatherParser.getLat(), weatherParser.getLon(), WEATHER_API_KEY);
+        try {
+            success = WeatherParser.parseWeather(weatherParser, getResultForUri(new URL(urlString)));
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "MalformedURLException: " + urlString);
+            return false;
+        } catch (WeatherRequestException e) {
+            if (e.getMessage() != null) {
+                Log.e(TAG, e.getMessage());
+            }
+            return false;
+        }
+
+        if(!success) {
+            if (Logger.DEBUG) {
+                Log.d(TAG, "Data process failed");
+            }
+            return false;
+        }
+
+        return success;
     }
 }

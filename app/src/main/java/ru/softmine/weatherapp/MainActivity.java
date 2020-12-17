@@ -1,6 +1,9 @@
 package ru.softmine.weatherapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,34 +13,99 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
+import ru.softmine.weatherapp.cities.CityModel;
+import ru.softmine.weatherapp.constants.BundleKeys;
+import ru.softmine.weatherapp.constants.Logger;
+import ru.softmine.weatherapp.dialogs.CitySelectDialogFragment;
+import ru.softmine.weatherapp.dialogs.ErrorDialog;
+import ru.softmine.weatherapp.interfaces.OnDialogListener;
+import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
+
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getName();
 
-    private static final int CITY_RESULT = 0xAA;
+//    private static final int CITY_RESULT = 0xAA;
     private static final int SETTING_CODE = 0xBB;
 
     private DrawerLayout drawer;
+    private CitySelectDialogFragment citySelectDialogFragment;
+
+    private CurrentWeatherFragment currentWeatherFragment;
+    private WeekForecastFragment forecastFragment;
+
+    // Получатель широковещательного сообщения
+    private final BroadcastReceiver weatherUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Logger.DEBUG) {
+                Log.d(TAG, "BroadcastReceiver.onReceive()");
+            }
+
+            boolean updated = intent.getBooleanExtra(BundleKeys.WEATHER_UPDATED_SUCCESS, false);
+            if (updated) {
+                currentWeatherFragment.update();
+                if (forecastFragment != null) {
+                    forecastFragment.update();
+                }
+            } else {
+                String message = intent.getStringExtra(BundleKeys.WEATHER_UPDATED_MESSAGE);
+                if (Logger.DEBUG) {
+                    Log.e(TAG, message);
+                }
+//                if (message.length() != 0) {
+//                    showError(message);
+//                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initDrawer();
+        if (Logger.DEBUG) {
+            Log.d(TAG, "onCreate()");
+        }
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        registerReceiver(weatherUpdateReceiver,
+                new IntentFilter(BundleKeys.BROADCAST_ACTION_WEATHER_UPDATED));
+
+        currentWeatherFragment = (CurrentWeatherFragment) getSupportFragmentManager().findFragmentById(R.id.current_weather);
+        if (currentWeatherFragment != null) {
+            currentWeatherFragment.setOnErrorListener(getErrorListener());
+        }
 
         if (savedInstanceState == null) {
-            WeekForecastFragment forecast = new WeekForecastFragment();
+            if (Logger.DEBUG) {
+                Log.d(TAG, "savedInstanceState == null");
+            }
+            forecastFragment = new WeekForecastFragment();
+            forecastFragment.setOnErrorListener(getErrorListener());
+
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_container, forecast).commit();
+                    .replace(R.id.fragment_container, forecastFragment).commit();
         }
+
+        if (forecastFragment != null) {
+            forecastFragment.setOnErrorListener(getErrorListener());
+        }
+
+        initDrawer();
     }
 
     private void initDrawer() {
@@ -51,13 +119,41 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     /**
+     * Листенер для результата выбора города в диалоге
+     * final так как поведение присваивается один раз и не меняется.
+     */
+    private final OnDialogListener dialogCitySelectListener = new OnDialogListener() {
+        @Override
+        public void onDialogApply() {
+            String cityName = citySelectDialogFragment.getCityName();
+            if (currentWeatherFragment != null) {
+                currentWeatherFragment.setCity(cityName);
+            }
+        }
+    };
+
+    private final OnFragmentErrorListener errorListener = new OnFragmentErrorListener() {
+        @Override
+        public void onFragmentError(String message) {
+            showError(message);
+        }
+    };
+
+    public OnFragmentErrorListener getErrorListener() {
+        return errorListener;
+    }
+
+    /**
      * Переход на выбор города, по клику на наименовании текущего города
+     * Вызывается диалог.
      *
      * @param view TextView с именем города @id/cityName
      */
     public void cityOnClick(View view) {
-        Intent intent = new Intent(this, SelectCityActivity.class);
-        startActivityForResult(intent, CITY_RESULT);
+        citySelectDialogFragment = CitySelectDialogFragment.newInstance();
+        citySelectDialogFragment.setOnDialogListener(dialogCitySelectListener);
+        citySelectDialogFragment.setOnErrorListener(errorListener);
+        citySelectDialogFragment.show(getSupportFragmentManager(), "city_select_dialog_fragment");
     }
 
     /**
@@ -76,29 +172,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode != CITY_RESULT) {
-            super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
 
-            // Вернулись из настроек
-            if (requestCode == SETTING_CODE) {
+        // Вернулись из настроек, обновим тему
+        if (requestCode == SETTING_CODE) {
+            if (data.getBooleanExtra(BundleKeys.THEME_CHANGED, false)) {
                 recreate();
-            }
-            return;
-        }
-
-        if (resultCode == RESULT_OK) {
-            if (data == null) {
-                if (Logger.DEBUG) {
-                    Log.d(TAG, "onActivityResult: data is null");
-                }
-                return;
-            }
-
-            String cityName = data.getStringExtra(BundleKeys.CITY_NAME);
-            CurrentWeatherFragment fragment = (CurrentWeatherFragment)
-                    getSupportFragmentManager().findFragmentById(R.id.current_weather);
-            if (fragment != null) {
-                fragment.setCity(cityName);
             }
         }
     }
@@ -114,12 +193,21 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int id = item.getItemId();
 
         switch (id) {
+            case android.R.id.home:
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    drawer.openDrawer(GravityCompat.START);
+                }
+                break;
+
             case R.id.action_refresh:
+                String cityName = CityModel.getInstance().getCityName();
+                WeatherApp.getWeatherApiHolder().requestWeatherUpdate(cityName);
                 return true;
 
             case R.id.action_change_city:
-                Intent intentCity = new Intent(this, SelectCityActivity.class);
-                startActivityForResult(intentCity, CITY_RESULT);
+                startActivity(new Intent(this, CitiesActivity.class));
                 return true;
 
             case R.id.action_history:
@@ -141,25 +229,23 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         switch (id) {
             case R.id.nav_home:
-                // Do nothing
                 break;
 
             case R.id.nav_cities:
-                Intent intentCity = new Intent(this, SelectCityActivity.class);
-                startActivityForResult(intentCity, CITY_RESULT);
+                startActivity(new Intent(this, CitiesActivity.class));
                 break;
 
             case R.id.nav_history:
-                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                startActivity(new Intent(this, HistoryActivity.class));
                 break;
 
             case R.id.nav_settings:
-                Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                Intent intentSettings = new Intent(this, SettingsActivity.class);
                 startActivityForResult(intentSettings, SETTING_CODE);
                 break;
 
             case R.id.nav_about:
-                startActivity(new Intent(MainActivity.this, AboutActivity.class));
+                startActivity(new Intent(this, AboutActivity.class));
                 break;
         }
 
@@ -174,6 +260,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             super.onBackPressed();
         }
+    }
 
+    private void showError(String message) {
+        ErrorDialog errDlg = ErrorDialog.newInstance();
+        errDlg.setMessage(message);
+        errDlg.show(getSupportFragmentManager(), "error_dialog_fragment");
     }
 }

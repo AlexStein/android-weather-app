@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -25,6 +26,12 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         initDrawer();
 
@@ -48,24 +55,36 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            drawer.openDrawer(GravityCompat.START);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
         switch (id) {
             case R.id.nav_home:
-                startActivity(new Intent(HistoryActivity.this, MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 break;
 
             case R.id.nav_cities:
-                startActivity(new Intent(HistoryActivity.this, SelectCityActivity.class));
+                startActivity(new Intent(this, CitiesActivity.class));
                 break;
 
             case R.id.nav_history:
-                startActivity(new Intent(HistoryActivity.this, HistoryActivity.class));
+                startActivity(new Intent(this, HistoryActivity.class));
                 break;
 
             case R.id.nav_settings:
-                startActivity(new Intent(HistoryActivity.this, SettingsActivity.class));
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
 
             case R.id.nav_about:

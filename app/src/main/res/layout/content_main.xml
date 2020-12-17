@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/current_weather_fragment_height">
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/current_weather"
             android:name="ru.softmine.weatherapp.CurrentWeatherFragment"
             android:layout_width="match_parent"

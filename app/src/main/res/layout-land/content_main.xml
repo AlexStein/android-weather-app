@@ -6,11 +6,17 @@
     android:orientation="horizontal"
     android:baselineAligned="false">
 
-    <fragment android:name="ru.softmine.weatherapp.CurrentWeatherFragment"
-        android:id="@+id/current_weather"
-        android:layout_weight="1"
-        android:layout_width="0px"
-        android:layout_height="match_parent" />
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/current_weather"
+            android:name="ru.softmine.weatherapp.CurrentWeatherFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/fragment_container"

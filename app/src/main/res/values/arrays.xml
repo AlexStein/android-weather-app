@@ -2,6 +2,7 @@
     <string-array name="cities">
         <item>@string/moscow_city</item>
         <item>@string/petersburg_city</item>
+        <item>@string/detroit_city</item>
         <item>@string/samara_city</item>
         <item>@string/kazan_city</item>
         <item>@string/tver_city</item>
