@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import javax.net.ssl.HttpsURLConnection;
 
 import ru.softmine.weatherapp.BuildConfig;
-import ru.softmine.weatherapp.WeatherApp;
+import ru.softmine.weatherapp.constants.BaseUrl;
 import ru.softmine.weatherapp.constants.Logger;
 
 public class WeatherRequest {
@@ -20,7 +20,7 @@ public class WeatherRequest {
     private static final String TAG = WeatherRequest.class.getName();
 
     private static final String WEATHER_API_KEY = BuildConfig.WEATHER_API_KEY;
-    private static final String WEB_API_URL = "https://api.openweathermap.org/data/2.5";
+
     private static final String CITY_URL = "%s/weather?q=%s&appid=%s";
     private static final String CURRENT_URL = "%s/onecall?lat=%f&lon=%f&exclude=minutely,hourly,alerts&appid=%s";
 
@@ -55,51 +55,52 @@ public class WeatherRequest {
      * @param cityName Наименование города
      * @return Истина, если обновление полностью успешно
      */
-    public static boolean getWeatherParser(String cityName) {
-        WeatherParser weatherParser = WeatherApp.getWeatherParser();
-        String urlString = String.format(CITY_URL, WEB_API_URL, cityName, WEATHER_API_KEY);
+    public static WeatherParser getWeatherParser(String cityName) {
+        String urlString = String.format(CITY_URL, BaseUrl.WEB_API_URL, cityName, WEATHER_API_KEY);
         boolean success = false;
 
+        CityParser city;
         try {
-            success = WeatherParser.parseCity(weatherParser, getResultForUri(new URL(urlString)));
+            city = WeatherParser.parseCity(getResultForUri(new URL(urlString)));
         } catch (MalformedURLException e) {
             Log.e(TAG, "MalformedURLException: " + urlString);
-            return false;
+            return null;
         } catch (WeatherRequestException e) {
             if (e.getMessage() != null) {
                 Log.e(TAG, e.getMessage());
             }
-            return false;
+            return null;
         }
 
-        if(!success) {
+        if(city == null) {
             if (Logger.DEBUG) {
                 Log.d(TAG, "Data process failed");
             }
-            return false;
+            return null;
         }
 
         urlString = String.format(Locale.getDefault(), CURRENT_URL,
-                WEB_API_URL, weatherParser.getLat(), weatherParser.getLon(), WEATHER_API_KEY);
+                BaseUrl.WEB_API_URL, city.getLat(), city.getLon(), WEATHER_API_KEY);
+        WeatherParser parser;
         try {
-            success = WeatherParser.parseWeather(weatherParser, getResultForUri(new URL(urlString)));
+            parser = WeatherParser.parseWeather(getResultForUri(new URL(urlString)));
         } catch (MalformedURLException e) {
             Log.e(TAG, "MalformedURLException: " + urlString);
-            return false;
+            return null;
         } catch (WeatherRequestException e) {
             if (e.getMessage() != null) {
                 Log.e(TAG, e.getMessage());
             }
-            return false;
+            return null;
         }
 
-        if(!success) {
+        if(parser == null) {
             if (Logger.DEBUG) {
                 Log.d(TAG, "Data process failed");
             }
-            return false;
+            return null;
         }
 
-        return success;
+        return parser;
     }
 }

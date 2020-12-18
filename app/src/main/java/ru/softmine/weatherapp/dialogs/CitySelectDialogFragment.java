@@ -17,10 +17,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import ru.softmine.weatherapp.R;
 import ru.softmine.weatherapp.cities.CityAdapter;
-import ru.softmine.weatherapp.cities.CityModel;
 import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.interfaces.OnDialogListener;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
@@ -28,6 +28,8 @@ import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
 public class CitySelectDialogFragment extends BottomSheetDialogFragment {
 
     private static final String TAG = CitySelectDialogFragment.class.getName();
+
+    private final String cityNameRegex = getResources().getString(R.string.cityNameRegEx);
 
     /* Список известных городов */
     ArrayList<String> citiesNames;
@@ -90,7 +92,6 @@ public class CitySelectDialogFragment extends BottomSheetDialogFragment {
             public void onItemClick(View view, int position) {
                 String cityName = adapter.getItem(position);
                 editTextCityName.setText(cityName);
-                CityModel.getInstance().setCityName(cityName);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -133,7 +134,7 @@ public class CitySelectDialogFragment extends BottomSheetDialogFragment {
      */
     private boolean validateCity(TextView view, String value) {
         // Проверка на осмысленое имя
-        if (CityModel.isValidName(value)) {
+        if (isValidName(value)) {
             hideError(view);
         } else {
             showError(view, getResources().getString(R.string.city_validation_error));
@@ -166,5 +167,10 @@ public class CitySelectDialogFragment extends BottomSheetDialogFragment {
      */
     private void hideError(TextView view) {
         view.setError(null);
+    }
+
+    private boolean isValidName(String cityName) {
+        Pattern cityNamePattern = Pattern.compile(cityNameRegex);
+        return cityNamePattern.matcher(cityName).matches();
     }
 }

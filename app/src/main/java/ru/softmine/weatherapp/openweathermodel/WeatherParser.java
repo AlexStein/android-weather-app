@@ -5,24 +5,20 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import ru.softmine.weatherapp.R;
-import ru.softmine.weatherapp.WeatherApp;
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.softmine.weatherapp.constants.BaseUrl;
+import ru.softmine.weatherapp.interfaces.WeatherObserver;
 
 public class WeatherParser {
 
-    private static final String WEB_IMG_URL = "https://openweathermap.org/img/wn/%s@2x.png";
+    /* Наблюдатели за погодой, фрагменты, View */
+    private final List<WeatherObserver> observers;
 
-    @SerializedName("name")
-    @Expose
+    private final static Gson gson = new Gson();
+
     private String cityName;
-
-    @SerializedName("id")
-    @Expose
-    private int cityId;
-
-    @SerializedName("coord")
-    @Expose
-    private Coord coord;
 
     @SerializedName("current")
     @Expose
@@ -32,29 +28,30 @@ public class WeatherParser {
     @Expose
     private Daily[] daily;
 
-    // Вспомогательные классы для парсинга
-    private static class WeatherDataParser {
-        private CurrentWeather current;
-        private Daily[] daily;
-    }
-
-    private static class CityParser {
-        private String name;
-        private int id;
-        private Coord coord;
-    }
-
     /**
      * В конструкторе задается начальное состояни сводки погоды.
      */
     public WeatherParser() {
-        cityName = WeatherApp.getAppContext().getString(R.string.moscow_city);
-        current = new CurrentWeather();
-        daily = new Daily[] {};
+        observers = new ArrayList<WeatherObserver>() {};
+        setCity("");
     }
 
-    public static boolean parseCity(WeatherParser weatherParser, String jsonString) throws WeatherRequestException {
-        Gson gson = new Gson();
+    public void setCity(String cityName) {
+        this.cityName = cityName;
+        this.current = new CurrentWeather();
+        this.daily = new Daily[]{};
+    }
+
+    public void updateWeather(CurrentWeather currentWeather, Daily[] daily) {
+        this.current = currentWeather;
+        this.daily = daily;
+    }
+
+    public void addObserver(WeatherObserver observer) {
+        observers.add(observer);
+    }
+
+    public static CityParser parseCity(String jsonString) throws WeatherRequestException {
         CityParser city;
         try {
             city = gson.fromJson(jsonString, CityParser.class);
@@ -63,31 +60,24 @@ public class WeatherParser {
             throw new WeatherRequestException(e.getMessage());
         }
 
-        if (city != null) {
-            weatherParser.cityName = city.name;
-            weatherParser.cityId = city.id;
-            weatherParser.coord = city.coord;
-        }
-
-        return (city != null);
+        return city;
     }
 
-    public static boolean parseWeather(WeatherParser weatherParser, String jsonString) throws WeatherRequestException {
-        Gson gson = new Gson();
-        WeatherDataParser parser;
+    public static WeatherParser parseWeather(String jsonString) throws WeatherRequestException {
+        WeatherParser parser;
         try {
-            parser = gson.fromJson(jsonString, WeatherDataParser.class);
+            parser = gson.fromJson(jsonString, WeatherParser.class);
 
         } catch (JsonSyntaxException e) {
             throw new WeatherRequestException(e.getMessage());
         }
+        return parser;
+    }
 
-        if (parser != null) {
-            weatherParser.daily = parser.daily;
-            weatherParser.current = parser.current;
+    public void notifyObservers() {
+        for (WeatherObserver observer : observers) {
+            observer.onWeatherDataChanged();
         }
-
-        return (parser != null);
     }
 
     public String getCityName() {
@@ -99,7 +89,7 @@ public class WeatherParser {
     }
 
     public static String getWeatherIconUri(String iconName) {
-        return String.format(WEB_IMG_URL, iconName);
+        return String.format(BaseUrl.WEB_IMG_URL, iconName);
     }
 
     public String getIcon() {
@@ -118,12 +108,8 @@ public class WeatherParser {
         return current.getWindString();
     }
 
-    public float getLat() {
-        return coord.getLat();
-    }
-
-    public float getLon() {
-        return coord.getLon();
+    public CurrentWeather getCurrent() {
+        return current;
     }
 
     public Daily[] getDaily() {

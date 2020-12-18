@@ -1,9 +1,6 @@
 package ru.softmine.weatherapp;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,52 +17,29 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
-import ru.softmine.weatherapp.cities.CityModel;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import ru.softmine.weatherapp.constants.BundleKeys;
 import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.dialogs.CitySelectDialogFragment;
 import ru.softmine.weatherapp.dialogs.ErrorDialog;
 import ru.softmine.weatherapp.interfaces.OnDialogListener;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
+import ru.softmine.weatherapp.interfaces.OpenWeatherAPI;
+import ru.softmine.weatherapp.openweathermodel.CityParser;
+import ru.softmine.weatherapp.openweathermodel.WeatherParser;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getName();
 
-//    private static final int CITY_RESULT = 0xAA;
     private static final int SETTING_CODE = 0xBB;
 
     private DrawerLayout drawer;
     private CitySelectDialogFragment citySelectDialogFragment;
 
-    private CurrentWeatherFragment currentWeatherFragment;
     private WeekForecastFragment forecastFragment;
-
-    // Получатель широковещательного сообщения
-    private final BroadcastReceiver weatherUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Logger.DEBUG) {
-                Log.d(TAG, "BroadcastReceiver.onReceive()");
-            }
-
-            boolean updated = intent.getBooleanExtra(BundleKeys.WEATHER_UPDATED_SUCCESS, false);
-            if (updated) {
-                currentWeatherFragment.update();
-                if (forecastFragment != null) {
-                    forecastFragment.update();
-                }
-            } else {
-                String message = intent.getStringExtra(BundleKeys.WEATHER_UPDATED_MESSAGE);
-                if (Logger.DEBUG) {
-                    Log.e(TAG, message);
-                }
-//                if (message.length() != 0) {
-//                    showError(message);
-//                }
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,18 +55,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        registerReceiver(weatherUpdateReceiver,
-                new IntentFilter(BundleKeys.BROADCAST_ACTION_WEATHER_UPDATED));
-
-        currentWeatherFragment = (CurrentWeatherFragment) getSupportFragmentManager().findFragmentById(R.id.current_weather);
-        if (currentWeatherFragment != null) {
-            currentWeatherFragment.setOnErrorListener(getErrorListener());
-        }
+        // Горорд по-умолчнию
+        WeatherApp.getWeatherParser().setCity(getString(R.string.moscow_city));
 
         if (savedInstanceState == null) {
-            if (Logger.DEBUG) {
-                Log.d(TAG, "savedInstanceState == null");
-            }
             forecastFragment = new WeekForecastFragment();
             forecastFragment.setOnErrorListener(getErrorListener());
 
@@ -105,6 +71,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             forecastFragment.setOnErrorListener(getErrorListener());
         }
 
+        updateWeather();
         initDrawer();
     }
 
@@ -118,6 +85,56 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    private void updateWeather() {
+        OpenWeatherAPI openWeatherAPI = WeatherApp.getWeatherApiHolder().getOpenWeather();
+
+        String cityName = WeatherApp.getWeatherParser().getCityName();
+        String apiKey = BuildConfig.WEATHER_API_KEY;
+
+        openWeatherAPI.loadCity(cityName, apiKey).enqueue(new Callback<CityParser>() {
+            @Override
+            public void onResponse(Call<CityParser> call, Response<CityParser> response) {
+                CityParser cityParser = response.body();
+
+                if (cityParser == null) {
+                    return;
+                }
+
+                WeatherApp.getWeatherParser().setCity(cityParser.getName());
+                float lat = cityParser.getLat();
+                float lon = cityParser.getLon();
+
+                openWeatherAPI.loadWeather(lat, lon, "minutely,hourly,alerts",
+                        apiKey).enqueue(new Callback<WeatherParser>() {
+                    @Override
+                    public void onResponse(Call<WeatherParser> call, Response<WeatherParser> response) {
+                        WeatherParser weatherParser = response.body();
+                        if (weatherParser != null) {
+                            WeatherApp.getWeatherParser().updateWeather(
+                                    weatherParser.getCurrent(), weatherParser.getDaily());
+                            WeatherApp.getWeatherParser().notifyObservers();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherParser> call, Throwable t) {
+                        if (Logger.DEBUG) {
+                            Log.e(TAG, t.getMessage());
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call<CityParser> call, Throwable t) {
+                if (Logger.DEBUG) {
+                    Log.e(TAG, t.getMessage());
+                }
+            }
+        });
+
+    }
+
     /**
      * Листенер для результата выбора города в диалоге
      * final так как поведение присваивается один раз и не меняется.
@@ -125,10 +142,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private final OnDialogListener dialogCitySelectListener = new OnDialogListener() {
         @Override
         public void onDialogApply() {
-            String cityName = citySelectDialogFragment.getCityName();
-            if (currentWeatherFragment != null) {
-                currentWeatherFragment.setCity(cityName);
-            }
+            WeatherApp.getWeatherParser().setCity(citySelectDialogFragment.getCityName());
+            updateWeather();
         }
     };
 
@@ -162,7 +177,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * @param view Button
      */
     public void onButtonInfoClick(View view) {
-        String cityName = CityModel.getInstance().getCityName();
+        String cityName = WeatherApp.getWeatherParser().getCityName();
         String url = String.format(getString(R.string.wiki_url_format), cityName);
 
         Uri uri = Uri.parse(url);
@@ -176,7 +191,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         // Вернулись из настроек, обновим тему
         if (requestCode == SETTING_CODE) {
-            if (data.getBooleanExtra(BundleKeys.THEME_CHANGED, false)) {
+            if (data != null && data.getBooleanExtra(BundleKeys.THEME_CHANGED, false)) {
                 recreate();
             }
         }
@@ -194,16 +209,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         switch (id) {
             case android.R.id.home:
-                if (drawer.isDrawerOpen(GravityCompat.START)) {
-                    drawer.closeDrawer(GravityCompat.START);
-                } else {
-                    drawer.openDrawer(GravityCompat.START);
-                }
-                break;
+                toggleDrawer();
+                return true;
 
             case R.id.action_refresh:
-                String cityName = CityModel.getInstance().getCityName();
-                WeatherApp.getWeatherApiHolder().requestWeatherUpdate(cityName);
+                updateWeather();
                 return true;
 
             case R.id.action_change_city:
@@ -251,6 +261,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void toggleDrawer() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            drawer.openDrawer(GravityCompat.START);
+        }
     }
 
     @Override
