@@ -12,6 +12,7 @@ import ru.softmine.weatherapp.WeatherApp;
 
 public class CurrentWeather {
 
+    private final static float ZERO = -273.15f;
     private final Resources res;
 
     @SerializedName("temp")
@@ -43,11 +44,11 @@ public class CurrentWeather {
     }
 
     public int getTemp() {
-        return Math.round(temp - 273.15f);
+        return Math.round(temp + ZERO);
     }
 
     public int getFeelsLike() {
-        return Math.round(feels_like - 273.15f);
+        return Math.round(feels_like + ZERO);
     }
 
     public int getHumidity() {
@@ -67,6 +68,9 @@ public class CurrentWeather {
     }
 
     public Weather getWeather() {
+        if (weather == null || weather.length == 0) {
+            return null;
+        }
         return weather[0];
     }
 

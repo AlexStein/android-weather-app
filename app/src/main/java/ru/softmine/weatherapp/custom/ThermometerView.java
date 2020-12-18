@@ -201,6 +201,14 @@ public class ThermometerView extends View {
     }
 
     public void setLevel(int level) {
+        if (level > 50) {
+            level = 50;
+        }
+
+        if (level < -50) {
+            level = -50;
+        }
+
         this.level = level;
         invalidate();
     }

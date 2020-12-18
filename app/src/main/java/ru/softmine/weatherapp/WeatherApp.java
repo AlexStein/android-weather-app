@@ -29,10 +29,6 @@ public class WeatherApp extends Application {
         return weatherParser;
     }
 
-    public static void setWeatherParser(WeatherParser weatherParser) {
-        WeatherApp.weatherParser = weatherParser;
-    }
-
     public static WeatherApiHolder getWeatherApiHolder() {
         return weatherApiHolder;
     }

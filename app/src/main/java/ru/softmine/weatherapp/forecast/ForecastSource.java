@@ -7,10 +7,12 @@ import ru.softmine.weatherapp.interfaces.WeatherDataSource;
 import ru.softmine.weatherapp.openweathermodel.Daily;
 
 public class ForecastSource implements WeatherDataSource {
+
+    private final static int CAPACITY = 7;
     private final List<ForecastItem> dataSource;
 
     public ForecastSource() {
-        this.dataSource = new ArrayList<>(7);
+        this.dataSource = new ArrayList<>(CAPACITY);
     }
 
     public ForecastSource init(Daily[] daily) {

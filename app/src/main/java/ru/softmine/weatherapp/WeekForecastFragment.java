@@ -15,15 +15,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.forecast.ForecastAdapter;
 import ru.softmine.weatherapp.forecast.ForecastItem;
 import ru.softmine.weatherapp.forecast.ForecastSource;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
-import ru.softmine.weatherapp.interfaces.Updatable;
 import ru.softmine.weatherapp.interfaces.WeatherDataSource;
+import ru.softmine.weatherapp.interfaces.WeatherObserver;
 
-public class WeekForecastFragment extends Fragment implements Updatable {
+public class WeekForecastFragment extends Fragment implements WeatherObserver {
 
     private static final String TAG = WeekForecastFragment.class.getName();
 
@@ -38,10 +37,6 @@ public class WeekForecastFragment extends Fragment implements Updatable {
     }
 
     public static WeekForecastFragment createFragment() {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "createFragment()");
-        }
-
         return new WeekForecastFragment();
     }
 
@@ -52,10 +47,6 @@ public class WeekForecastFragment extends Fragment implements Updatable {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "onCreateView()");
-        }
-
         View view = inflater.inflate(R.layout.fragment_week_forecast_list, container, false);
 
         recyclerView = view.findViewById(R.id.recycler_view);
@@ -74,29 +65,25 @@ public class WeekForecastFragment extends Fragment implements Updatable {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "onViewCreated()");
-        }
-
         source = new ForecastSource();
         initRecyclerView(source.getDataSource());
 
-        update();
+        WeatherApp.getWeatherParser().addObserver(this);
+
+        onWeatherDataChanged();
     }
 
     private void initRecyclerView(List<ForecastItem> sourceData) {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "initRecyclerView()");
-        }
-
         recyclerView.setHasFixedSize(true);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(WeatherApp.getAppContext());
         recyclerView.setLayoutManager(layoutManager);
 
         // Декоратор
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL);
-        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.decorator, getActivity().getTheme()));
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(WeatherApp.getAppContext(),
+                LinearLayoutManager.VERTICAL);
+        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.decorator,
+                WeatherApp.getAppContext().getTheme()));
         recyclerView.addItemDecoration(itemDecoration);
 
         // Адаптер
@@ -105,11 +92,7 @@ public class WeekForecastFragment extends Fragment implements Updatable {
     }
 
     @Override
-    public void update() {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "update()");
-        }
-
+    public void onWeatherDataChanged() {
         source = new ForecastSource().init(WeatherApp.getWeatherParser().getDaily());
         adapter.update(source.getDataSource());
         adapter.notifyDataSetChanged();

@@ -78,4 +78,5 @@
     <string name="default_subject">Hello</string>
     <string name="title_dialog_error">Error</string>
     <string name="about_city">About city</string>
+    <string name="cityNameRegEx" translatable="false">^([a-zA-Z\\\\u0080-\\\\u024F]+(?:. |-| |\\\'))*[a-zA-Z\\\\u0080-\\\\u024F]*$</string>
 </resources>

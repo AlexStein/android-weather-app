@@ -14,20 +14,16 @@ import androidx.fragment.app.Fragment;
 
 import com.squareup.picasso.Picasso;
 
-import ru.softmine.weatherapp.cities.CityModel;
 import ru.softmine.weatherapp.constants.BundleKeys;
 import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.custom.ThermometerView;
 import ru.softmine.weatherapp.history.HistoryDataSource;
-import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
-import ru.softmine.weatherapp.interfaces.Updatable;
+import ru.softmine.weatherapp.interfaces.WeatherObserver;
 import ru.softmine.weatherapp.openweathermodel.WeatherParser;
 
-public class CurrentWeatherFragment extends Fragment implements Updatable {
+public class CurrentWeatherFragment extends Fragment implements WeatherObserver {
 
     private static final String TAG = CurrentWeatherFragment.class.getName();
-
-    private OnFragmentErrorListener errorListener;
 
     private TextView cityNameTextView;
     private TextView forecastTextView;
@@ -37,23 +33,8 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
 
     private ThermometerView thermometerView;
 
-    @Override
-    public void onDestroy() {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "onDestroy()");
-        }
-        super.onDestroy();
-    }
-
     public CurrentWeatherFragment() {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "CurrentWeatherFragment()");
-        }
         // Required empty public constructor
-    }
-
-    public void setOnErrorListener(OnFragmentErrorListener listener) {
-        this.errorListener = listener;
     }
 
     @Override
@@ -65,6 +46,8 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
             Log.d(TAG, "onCreateView()");
         }
 
+        WeatherApp.getWeatherParser().addObserver(this);
+
         cityNameTextView = view.findViewById(R.id.cityNameTextView);
         forecastTextView = view.findViewById(R.id.forecastTextView);
         tempsTextView = view.findViewById(R.id.tempsTextView);
@@ -74,30 +57,6 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
         // Термометр
         thermometerView = view.findViewById(R.id.thermometerView);
 
-        // Первый запуск, заполняем значениями по умолчанию
-        if (savedInstanceState == null) {
-            setCity(getString(R.string.moscow_city));
-        }
-
-        // Обновить сводку погоды по нажатию н иконку погоды
-        weatherIconImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setCity(CityModel.getInstance().getCityName());
-            }
-        });
-
-        try {
-            errorListener = ((MainActivity) getActivity()).getErrorListener();
-        } catch (NullPointerException e) {
-            errorListener = new OnFragmentErrorListener() {
-                @Override
-                public void onFragmentError(String message) {
-                    Log.e(TAG, message);
-                }
-            };
-        }
-
         return view;
     }
 
@@ -105,16 +64,21 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
         if (Logger.DEBUG) {
             Log.d(TAG, "updateWeatherOnDisplay()");
         }
+        cityNameTextView.setText(weatherParser.getCityName());
+
+        // Проверим, а была ли получена погода
+        if (weatherParser.getCurrent().getWeather() == null) {
+            return;
+        }
 
         forecastTextView.setText(weatherParser.getWeatherString());
         tempsTextView.setText(weatherParser.getTemperatureString());
         windTextView.setText(weatherParser.getWindString());
 
-        // Обновим данные в истории
-        String cityName = CityModel.getInstance().getCityName();
-
-        HistoryDataSource.updateHistoryItem(cityName, weatherParser.getTemperatureString(),
-                weatherParser.getWeatherString(), weatherParser.getWindString());
+        HistoryDataSource.updateHistoryItem(weatherParser.getCityName(),
+                weatherParser.getTemperatureString(),
+                weatherParser.getWeatherString(),
+                weatherParser.getWindString());
 
         // Иконку будет выставлять в зависимости от значения forecast
         Picasso.get().load(weatherParser.getIcon())
@@ -132,10 +96,7 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
         if (Logger.DEBUG) {
             Log.d(TAG, "onViewStateRestored()");
         }
-
-        String cityName = CityModel.getInstance().getCityName();
-        cityNameTextView.setText(cityName);
-
+        
         if (savedInstanceState != null) {
             // При восстановлении состояния выводим значение температуры и прогноза
             String forecast = savedInstanceState.getString(BundleKeys.FORECAST);
@@ -153,6 +114,7 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
             int tempLevel = savedInstanceState.getInt(BundleKeys.TEMPERATURE);
             thermometerView.setLevel(tempLevel);
         }
+        updateWeatherOnDisplay(WeatherApp.getWeatherParser());
     }
 
     @Override
@@ -175,26 +137,8 @@ public class CurrentWeatherFragment extends Fragment implements Updatable {
         super.onSaveInstanceState(outState);
     }
 
-    public void setCity(String cityName) {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "setCity(" + cityName + ")");
-        }
-
-        CityModel.getInstance().setCityName(cityName);
-        cityNameTextView.setText(cityName);
-
-        // Получение погоды через службу
-        // WeatherIntentService.startWeatherUpdate(getContext(), cityName);
-
-        // Получение погоды через Retrofit
-        WeatherApp.getWeatherApiHolder().requestWeatherUpdate(cityName);
-    }
-
     @Override
-    public void update() {
-        if (Logger.DEBUG) {
-            Log.d(TAG, "update()");
-        }
+    public void onWeatherDataChanged() {
         updateWeatherOnDisplay(WeatherApp.getWeatherParser());
     }
 }
