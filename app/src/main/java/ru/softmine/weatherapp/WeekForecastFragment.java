@@ -1,5 +1,6 @@
 package ru.softmine.weatherapp;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,6 +34,8 @@ public class WeekForecastFragment extends Fragment implements WeatherObserver {
 
     private OnFragmentErrorListener errorListener;
 
+    private Drawable decorator;
+
     public WeekForecastFragment() {
         // Required empty public constructor
     }
@@ -48,7 +52,7 @@ public class WeekForecastFragment extends Fragment implements WeatherObserver {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_week_forecast_list, container, false);
-
+        decorator = ContextCompat.getDrawable(WeatherApp.getAppContext(), R.drawable.decorator);
         recyclerView = view.findViewById(R.id.recycler_view);
         try {
             errorListener = ((MainActivity) getActivity()).getErrorListener();
@@ -82,8 +86,7 @@ public class WeekForecastFragment extends Fragment implements WeatherObserver {
         // Декоратор
         DividerItemDecoration itemDecoration = new DividerItemDecoration(WeatherApp.getAppContext(),
                 LinearLayoutManager.VERTICAL);
-        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.decorator,
-                WeatherApp.getAppContext().getTheme()));
+        itemDecoration.setDrawable(decorator);
         recyclerView.addItemDecoration(itemDecoration);
 
         // Адаптер

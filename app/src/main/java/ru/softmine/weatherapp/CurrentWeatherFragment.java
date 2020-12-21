@@ -17,7 +17,6 @@ import com.squareup.picasso.Picasso;
 import ru.softmine.weatherapp.constants.BundleKeys;
 import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.custom.ThermometerView;
-import ru.softmine.weatherapp.history.HistoryDataSource;
 import ru.softmine.weatherapp.interfaces.WeatherObserver;
 import ru.softmine.weatherapp.openweathermodel.WeatherParser;
 
@@ -74,11 +73,6 @@ public class CurrentWeatherFragment extends Fragment implements WeatherObserver 
         forecastTextView.setText(weatherParser.getWeatherString());
         tempsTextView.setText(weatherParser.getTemperatureString());
         windTextView.setText(weatherParser.getWindString());
-
-        HistoryDataSource.updateHistoryItem(weatherParser.getCityName(),
-                weatherParser.getTemperatureString(),
-                weatherParser.getWeatherString(),
-                weatherParser.getWindString());
 
         // Иконку будет выставлять в зависимости от значения forecast
         Picasso.get().load(weatherParser.getIcon())

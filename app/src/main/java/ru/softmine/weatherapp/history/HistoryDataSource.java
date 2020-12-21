@@ -3,36 +3,66 @@ package ru.softmine.weatherapp.history;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.softmine.weatherapp.database.WeatherDao;
+
 /**
  * Хранилице истории погоды
  */
 public class HistoryDataSource {
     private static final String TAG = HistoryDataSource.class.getName();
 
-    public static List<HistoryItem> historySource = new ArrayList<>();
+    private final WeatherDao weatherDao;
 
-    private static String getLastCityName() {
-        int listLen = historySource.size();
+    public static List<HistoryItem> historyItems = new ArrayList<>();
 
-        if (listLen == 0) {
-            return "";
-        }
-
-        return historySource.get(listLen - 1).getCityName();
+    public HistoryDataSource(WeatherDao weatherDao) {
+        this.weatherDao = weatherDao;
     }
 
-    public static void updateHistoryItem(String cityName, String temp, String condition, String wind) {
-        int listLen = historySource.size();
+    public void loadAllHistoryItems(){
+        historyItems = weatherDao.getHistoryItems();
+    }
 
-        HistoryItem item;
-        if (getLastCityName().equals(cityName)) {
-            item = historySource.get(listLen - 1);
-            item.updateHistoryItem(temp, condition, wind);
-            historySource.set(listLen - 1, item);
-
-        } else {
-            item = new HistoryItem(cityName, temp, condition, wind);
-            historySource.add(item);
+    public List<HistoryItem> getHistoryItems(){
+        if (historyItems == null){
+            loadAllHistoryItems();
         }
+        return historyItems;
+    }
+
+    public void getHistoryItemsByCityName(String cityName){
+        historyItems = weatherDao.searchHistoryItems(cityName);
+    }
+
+    public int getHistoryItemsCount(){
+        return historyItems.size();
+    }
+
+    public void addHistoryItem(HistoryItem historyItem){
+        weatherDao.insertHistoryItem(historyItem);
+        loadAllHistoryItems();
+    }
+
+    public void updateHistoryItem(HistoryItem historyItem){
+        HistoryItem lastHistoryItem = getLastHistoryItem();
+
+        if (lastHistoryItem == null ||
+                !lastHistoryItem.getCityName().equals(historyItem.getCityName())) {
+            // Вставляем
+            weatherDao.insertHistoryItem(historyItem);
+        } else {
+            // Обновляем
+            lastHistoryItem.setConditions(historyItem.getConditions());
+            lastHistoryItem.setTemperature(historyItem.getTemperature());
+            lastHistoryItem.setWind(historyItem.getWind());
+
+            weatherDao.updateHistoryItem(lastHistoryItem);
+        }
+
+        loadAllHistoryItems();
+    }
+
+    private HistoryItem getLastHistoryItem() {
+        return weatherDao.lastHistoryItem();
     }
 }

@@ -1,7 +1,6 @@
 package ru.softmine.weatherapp.forecast;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Locale;
 
 import ru.softmine.weatherapp.R;
-import ru.softmine.weatherapp.constants.Logger;
 
 /**
  * Адаптер для прогноза погоды на несколько дней
@@ -47,9 +45,6 @@ public class ForecastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         tmf = context.getString(R.string.temp_format);
         temp_units = context.getString(R.string.celsius);
 
-        if (Logger.DEBUG) {
-            Log.d(TAG, "onCreateViewHolder");
-        }
         return vh;
     }
 

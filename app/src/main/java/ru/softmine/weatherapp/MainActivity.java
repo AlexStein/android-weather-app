@@ -1,6 +1,7 @@
 package ru.softmine.weatherapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,8 +23,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import ru.softmine.weatherapp.constants.BundleKeys;
 import ru.softmine.weatherapp.constants.Logger;
+import ru.softmine.weatherapp.constants.PrefKeys;
 import ru.softmine.weatherapp.dialogs.CitySelectDialogFragment;
 import ru.softmine.weatherapp.dialogs.ErrorDialog;
+import ru.softmine.weatherapp.history.HistoryDataSource;
+import ru.softmine.weatherapp.history.HistoryItem;
 import ru.softmine.weatherapp.interfaces.OnDialogListener;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
 import ru.softmine.weatherapp.interfaces.OpenWeatherAPI;
@@ -36,10 +40,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     private static final int SETTING_CODE = 0xBB;
 
+    private SharedPreferences sharedPref;
+
     private DrawerLayout drawer;
     private CitySelectDialogFragment citySelectDialogFragment;
 
     private WeekForecastFragment forecastFragment;
+
+    private HistoryDataSource historyDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +63,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // Горорд по-умолчнию
-        WeatherApp.getWeatherParser().setCity(getString(R.string.moscow_city));
+        historyDataSource = new HistoryDataSource(WeatherApp.getWeatherDao());
+        sharedPref = getPreferences(MODE_PRIVATE);
+
+        // Горорд по-умолчанию или последний город из настроек
+        String defaultCity = sharedPref.getString(PrefKeys.LAST_CITY_NAME,
+                getString(R.string.moscow_city));
+        WeatherApp.getWeatherParser().setCity(defaultCity);
 
         if (savedInstanceState == null) {
             forecastFragment = new WeekForecastFragment();
@@ -100,6 +113,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     return;
                 }
 
+                //TODO: Добавим город в БД, так как этот метод будет вызываться,
+                //      если ищем какой-то новый город.
+
+                // Город найден, поэтому можно сохранить
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(PrefKeys.LAST_CITY_NAME, cityParser.getName());
+                editor.apply();
+
                 WeatherApp.getWeatherParser().setCity(cityParser.getName());
                 float lat = cityParser.getLat();
                 float lon = cityParser.getLon();
@@ -113,6 +134,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             WeatherApp.getWeatherParser().updateWeather(
                                     weatherParser.getCurrent(), weatherParser.getDaily());
                             WeatherApp.getWeatherParser().notifyObservers();
+
+                            final HistoryItem historyItem = new HistoryItem(
+                                    WeatherApp.getWeatherParser());
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    historyDataSource.updateHistoryItem(historyItem);
+                                }
+                            }).start();
+
                         }
                     }
 

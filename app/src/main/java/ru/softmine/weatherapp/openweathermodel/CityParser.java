@@ -16,8 +16,16 @@ public class CityParser {
     @Expose
     private Coord coord;
 
+    @SerializedName("sys")
+    @Expose
+    private Sys sys;
+
     public String getName() {
         return name;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public float getLat() {
@@ -26,5 +34,9 @@ public class CityParser {
 
     public float getLon() {
         return coord.getLon();
+    }
+
+    public String getCountry() {
+        return sys.getCountry();
     }
 }

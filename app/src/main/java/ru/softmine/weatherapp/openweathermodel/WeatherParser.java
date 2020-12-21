@@ -33,7 +33,6 @@ public class WeatherParser {
      */
     public WeatherParser() {
         observers = new ArrayList<WeatherObserver>() {};
-        setCity("");
     }
 
     public void setCity(String cityName) {
