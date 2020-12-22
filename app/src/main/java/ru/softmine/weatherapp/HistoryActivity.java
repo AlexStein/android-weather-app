@@ -2,6 +2,9 @@ package ru.softmine.weatherapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
@@ -17,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
 
+import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.history.HistoryAdapter;
 import ru.softmine.weatherapp.history.HistoryDataSource;
 
@@ -24,11 +28,12 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
 
     private static final String TAG = HistoryActivity.class.getName();
 
-    private HistoryDataSource historyDataSource;
     private HistoryAdapter adapter;
-    private RecyclerView recyclerView;
+    private HistoryDataSource historyDataSource;
 
     private DrawerLayout drawer;
+
+    private Handler.Callback updateCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,23 +46,27 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        initDrawer();
-
-        recyclerView = findViewById(R.id.history_recycler_list);
-        recyclerView.setHasFixedSize(true);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-        // Декоратор
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(WeatherApp.getAppContext(),
-                LinearLayoutManager.VERTICAL);
-        itemDecoration.setDrawable(getDrawable(R.drawable.decorator));
-        recyclerView.addItemDecoration(itemDecoration);
-
-        historyDataSource = new HistoryDataSource(WeatherApp.getWeatherDao());
+        historyDataSource = new HistoryDataSource();
         adapter = new HistoryAdapter(historyDataSource);
-        recyclerView.setAdapter(adapter);
+        updateCallback = new Handler.Callback() {
+            @Override
+            public boolean handleMessage(@NonNull Message msg) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (Logger.DEBUG) {
+                            Log.d(TAG, "updateCallback()");
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+                return true;
+            }
+        };
+        WeatherApp.getDatabaseHandler().loadHistory(historyDataSource, updateCallback);
+
+        initDrawer();
+        initRecyclerView();
     }
 
     private void initDrawer() {
@@ -70,6 +79,22 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    private void initRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.history_recycler_list);
+        recyclerView.setHasFixedSize(true);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        // Декоратор
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(WeatherApp.getAppContext(),
+                LinearLayoutManager.VERTICAL);
+        itemDecoration.setDrawable(getDrawable(R.drawable.decorator));
+        recyclerView.addItemDecoration(itemDecoration);
+
+        recyclerView.setAdapter(adapter);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_history, menu);
@@ -80,19 +105,7 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
         searchViewAndroidActionBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.getItemsByCityName("%" + query + "%");
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-                    }
-                }).start();
-
+                WeatherApp.getDatabaseHandler().searchHistory(historyDataSource, query, updateCallback);
                 searchViewAndroidActionBar.clearFocus();
                 return true;
             }
@@ -100,21 +113,9 @@ public class HistoryActivity extends BaseActivity implements NavigationView.OnNa
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.length() == 0) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            historyDataSource.loadAllHistoryItems();
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
-                        }
-                    }).start();
+                    WeatherApp.getDatabaseHandler().loadHistory(historyDataSource, updateCallback);
                     searchViewAndroidActionBar.clearFocus();
                 }
-
                 return false;
             }
         });

@@ -51,15 +51,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return historySource.getHistoryItemsCount();
     }
 
-    public void getItemsByCityName(String cityName) {
-        if (Logger.DEBUG) {
-            Log.d(TAG, cityName);
-        }
-
-        historySource.getHistoryItemsByCityName(cityName);
-        //notifyDataSetChanged();
-    }
-
     private class HistoryViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView cityNameTextView;

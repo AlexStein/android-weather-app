@@ -26,8 +26,6 @@ import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.constants.PrefKeys;
 import ru.softmine.weatherapp.dialogs.CitySelectDialogFragment;
 import ru.softmine.weatherapp.dialogs.ErrorDialog;
-import ru.softmine.weatherapp.history.HistoryDataSource;
-import ru.softmine.weatherapp.history.HistoryItem;
 import ru.softmine.weatherapp.interfaces.OnDialogListener;
 import ru.softmine.weatherapp.interfaces.OnFragmentErrorListener;
 import ru.softmine.weatherapp.interfaces.OpenWeatherAPI;
@@ -47,8 +45,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     private WeekForecastFragment forecastFragment;
 
-    private HistoryDataSource historyDataSource;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +59,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        historyDataSource = new HistoryDataSource(WeatherApp.getWeatherDao());
         sharedPref = getPreferences(MODE_PRIVATE);
 
         // Горорд по-умолчанию или последний город из настроек
@@ -134,23 +129,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             WeatherApp.getWeatherParser().updateWeather(
                                     weatherParser.getCurrent(), weatherParser.getDaily());
                             WeatherApp.getWeatherParser().notifyObservers();
-
-                            final HistoryItem historyItem = new HistoryItem(
-                                    WeatherApp.getWeatherParser());
-
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    historyDataSource.updateHistoryItem(historyItem);
-                                }
-                            }).start();
-
+                            WeatherApp.getDatabaseHandler().updateHistory();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<WeatherParser> call, Throwable t) {
-                        if (Logger.DEBUG) {
+                        if (Logger.DEBUG && t.getMessage() != null) {
                             Log.e(TAG, t.getMessage());
                         }
                     }
@@ -159,7 +144,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             @Override
             public void onFailure(Call<CityParser> call, Throwable t) {
-                if (Logger.DEBUG) {
+                if (Logger.DEBUG && t.getMessage() != null) {
                     Log.e(TAG, t.getMessage());
                 }
             }
