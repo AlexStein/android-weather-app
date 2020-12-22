@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "569814545761",
+    "project_id": "weatherapp-4c174",
+    "storage_bucket": "weatherapp-4c174.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569814545761:android:2b9b68be02f826f4188120",
+        "android_client_info": {
+          "package_name": "ru.softmine.weatherapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "569814545761-n673matp859cantjc16pq41mmteot5g4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDozQbjLAJ5myUHdgjY99XIkQ6TaGYVQW8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "569814545761-n673matp859cantjc16pq41mmteot5g4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

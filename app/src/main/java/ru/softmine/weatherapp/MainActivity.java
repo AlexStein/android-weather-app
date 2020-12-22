@@ -1,8 +1,16 @@
 package ru.softmine.weatherapp;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,8 +29,11 @@ import com.google.android.material.navigation.NavigationView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import ru.softmine.weatherapp.broadcastreceivers.BatteryStateReceiver;
+import ru.softmine.weatherapp.broadcastreceivers.WifiStateReceiver;
 import ru.softmine.weatherapp.constants.BundleKeys;
 import ru.softmine.weatherapp.constants.Logger;
+import ru.softmine.weatherapp.constants.Notifications;
 import ru.softmine.weatherapp.constants.PrefKeys;
 import ru.softmine.weatherapp.dialogs.CitySelectDialogFragment;
 import ru.softmine.weatherapp.dialogs.ErrorDialog;
@@ -38,6 +49,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     private static final int SETTING_CODE = 0xBB;
 
+    private BroadcastReceiver connectivityReceiver = new WifiStateReceiver();
+    private BroadcastReceiver batteryReceiver = new BatteryStateReceiver();
+
     private SharedPreferences sharedPref;
 
     private DrawerLayout drawer;
@@ -49,6 +63,20 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Регистрируем ресивер для действий связанных с соединением
+        IntentFilter connectivityFilter = new IntentFilter();
+        connectivityFilter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        connectivityFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        connectivityFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+
+        registerReceiver(connectivityReceiver, connectivityFilter);
+
+        IntentFilter batteryFilter = new IntentFilter();
+        batteryFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        batteryFilter.addAction(Intent.ACTION_BATTERY_LOW);
+
+        registerReceiver(batteryReceiver, batteryFilter);
 
         if (Logger.DEBUG) {
             Log.d(TAG, "onCreate()");
@@ -81,6 +109,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         updateWeather();
         initDrawer();
+        initNotificationChannel();
     }
 
     private void initDrawer() {
@@ -91,6 +120,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void initNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel channel = new NotificationChannel(
+                    Notifications.CHANNEL_ID, Notifications.CHANNEL_NAME, importance);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     private void updateWeather() {
@@ -301,5 +341,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         ErrorDialog errDlg = ErrorDialog.newInstance();
         errDlg.setMessage(message);
         errDlg.show(getSupportFragmentManager(), "error_dialog_fragment");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(connectivityReceiver);
+        unregisterReceiver(batteryReceiver);
     }
 }

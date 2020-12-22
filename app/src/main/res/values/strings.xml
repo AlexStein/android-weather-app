@@ -80,4 +80,12 @@
     <string name="about_city">About city</string>
     <string name="cityNameRegEx" translatable="false">^([a-zA-Z\\\\u0080-\\\\u024F]+(?:. |-| |\\\'))*[a-zA-Z\\\\u0080-\\\\u024F]*$</string>
     <string name="authorities" translatable="false">ru.softmine.weatehrapp.history</string>
+    <string name="airplane_mode_message">Airplane mode on</string>
+    <string name="no_wifi_message">WiFi is not connected</string>
+    <string name="no_connection_title">No connection</string>
+    <string name="no_internet_connection">No Internet connection</string>
+    <string name="no_low_message">Battery charge is low</string>
+    <string name="battery_low">Low battery</string>
+    <string name="push_notification">PUSH notification</string>
+    <string name="empty_push_body">Push body is empty</string>
 </resources>
