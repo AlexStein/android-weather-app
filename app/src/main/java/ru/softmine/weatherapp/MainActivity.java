@@ -1,5 +1,6 @@
 package ru.softmine.weatherapp;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -7,11 +8,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -33,6 +41,7 @@ import ru.softmine.weatherapp.broadcastreceivers.BatteryStateReceiver;
 import ru.softmine.weatherapp.broadcastreceivers.WifiStateReceiver;
 import ru.softmine.weatherapp.constants.BundleKeys;
 import ru.softmine.weatherapp.constants.Logger;
+import ru.softmine.weatherapp.constants.MapDefaults;
 import ru.softmine.weatherapp.constants.Notifications;
 import ru.softmine.weatherapp.constants.PrefKeys;
 import ru.softmine.weatherapp.dialogs.CitySelectDialogFragment;
@@ -47,10 +56,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     private static final String TAG = MainActivity.class.getName();
 
+    private static final int MAPS_CODE = 0xAA;
     private static final int SETTING_CODE = 0xBB;
 
-    private BroadcastReceiver connectivityReceiver = new WifiStateReceiver();
-    private BroadcastReceiver batteryReceiver = new BatteryStateReceiver();
+    private final BroadcastReceiver connectivityReceiver = new WifiStateReceiver();
+    private final BroadcastReceiver batteryReceiver = new BatteryStateReceiver();
 
     private SharedPreferences sharedPref;
 
@@ -92,7 +102,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         // Горорд по-умолчанию или последний город из настроек
         String defaultCity = sharedPref.getString(PrefKeys.LAST_CITY_NAME,
                 getString(R.string.moscow_city));
-        WeatherApp.getWeatherParser().setCity(defaultCity);
+        float lat = sharedPref.getFloat(PrefKeys.LAST_LAT, -1);
+        float lon = sharedPref.getFloat(PrefKeys.LAST_LON, -1);
+
+        WeatherApp.getWeatherParser().setCity(defaultCity, lat, lon);
 
         if (savedInstanceState == null) {
             forecastFragment = new WeekForecastFragment();
@@ -110,6 +123,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         updateWeather();
         initDrawer();
         initNotificationChannel();
+
+        requestLocationPermissions();
     }
 
     private void initDrawer() {
@@ -134,62 +149,110 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void updateWeather() {
-        OpenWeatherAPI openWeatherAPI = WeatherApp.getWeatherApiHolder().getOpenWeather();
-
         String cityName = WeatherApp.getWeatherParser().getCityName();
+        float lat = WeatherApp.getWeatherParser().getLat();
+        float lon  = WeatherApp.getWeatherParser().getLon();
+
+        verifyCity(cityName, lat, lon);
+
+        lat = WeatherApp.getWeatherParser().getLat();
+        lon  = WeatherApp.getWeatherParser().getLon();
+        updateWeather(lat, lon);
+    }
+
+    private void updateWeather(float lat, float lon) {
+        OpenWeatherAPI openWeatherAPI = WeatherApp.getWeatherApiHolder().getOpenWeather();
         String apiKey = BuildConfig.WEATHER_API_KEY;
+        String lang = getResources().getString(R.string.locale);
 
-        openWeatherAPI.loadCity(cityName, apiKey).enqueue(new Callback<CityParser>() {
+        openWeatherAPI.loadWeather(lat, lon, "minutely,hourly,alerts",
+                apiKey, lang).enqueue(new Callback<WeatherParser>() {
             @Override
-            public void onResponse(Call<CityParser> call, Response<CityParser> response) {
-                CityParser cityParser = response.body();
-
-                if (cityParser == null) {
-                    return;
+            public void onResponse(Call<WeatherParser> call, Response<WeatherParser> response) {
+                WeatherParser weatherParser = response.body();
+                if (Logger.DEBUG) {
+                    Log.d(TAG, "BODY: " + response.raw().toString());
                 }
-
-                //TODO: Добавим город в БД, так как этот метод будет вызываться,
-                //      если ищем какой-то новый город.
-
-                // Город найден, поэтому можно сохранить
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString(PrefKeys.LAST_CITY_NAME, cityParser.getName());
-                editor.apply();
-
-                WeatherApp.getWeatherParser().setCity(cityParser.getName());
-                float lat = cityParser.getLat();
-                float lon = cityParser.getLon();
-
-                openWeatherAPI.loadWeather(lat, lon, "minutely,hourly,alerts",
-                        apiKey).enqueue(new Callback<WeatherParser>() {
-                    @Override
-                    public void onResponse(Call<WeatherParser> call, Response<WeatherParser> response) {
-                        WeatherParser weatherParser = response.body();
-                        if (weatherParser != null) {
-                            WeatherApp.getWeatherParser().updateWeather(
-                                    weatherParser.getCurrent(), weatherParser.getDaily());
-                            WeatherApp.getWeatherParser().notifyObservers();
-                            WeatherApp.getDatabaseHandler().updateHistory();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<WeatherParser> call, Throwable t) {
-                        if (Logger.DEBUG && t.getMessage() != null) {
-                            Log.e(TAG, t.getMessage());
-                        }
-                    }
-                });
+                if (weatherParser != null) {
+                    WeatherApp.getWeatherParser().updateWeather(
+                            weatherParser.getCurrent(), weatherParser.getDaily());
+                    WeatherApp.getWeatherParser().notifyObservers();
+                    WeatherApp.getDatabaseHandler().updateHistory();
+                }
             }
 
             @Override
-            public void onFailure(Call<CityParser> call, Throwable t) {
+            public void onFailure(Call<WeatherParser> call, Throwable t) {
                 if (Logger.DEBUG && t.getMessage() != null) {
                     Log.e(TAG, t.getMessage());
                 }
             }
         });
+    }
 
+    private void verifyCity(String cityName, float lat, float lon) {
+        OpenWeatherAPI openWeatherAPI = WeatherApp.getWeatherApiHolder().getOpenWeather();
+        String apiKey = BuildConfig.WEATHER_API_KEY;
+        String lang = getResources().getString(R.string.locale);
+
+        if (lat != -1 && lon != -1) {
+            openWeatherAPI.loadCity(lat, lon, apiKey, lang).enqueue(new Callback<CityParser>() {
+                @Override
+                public void onResponse(Call<CityParser> call, Response<CityParser> response) {
+                    updateCityData(response.body());
+                }
+
+                @Override
+                public void onFailure(Call<CityParser> call, Throwable t) {
+                    if (Logger.DEBUG && t.getMessage() != null) {
+                        Log.e(TAG, t.getMessage());
+                    }
+                }
+            });
+        } else {
+            openWeatherAPI.loadCity(cityName, apiKey, lang).enqueue(new Callback<CityParser>() {
+                @Override
+                public void onResponse(Call<CityParser> call, Response<CityParser> response) {
+                    updateCityData(response.body());
+                }
+
+                @Override
+                public void onFailure(Call<CityParser> call, Throwable t) {
+                    if (Logger.DEBUG && t.getMessage() != null) {
+                        Log.e(TAG, t.getMessage());
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Обновить данные о текущем расположении, наименование города, координаты.
+     *
+     * @param cityParser парсер запроса погоды, возвращающий даные о городе
+     */
+    private void updateCityData(CityParser cityParser) {
+        if (cityParser == null) {
+            return;
+        }
+
+        float lat = cityParser.getLat();
+        float lon = cityParser.getLon();
+
+        if (Logger.DEBUG) {
+            Log.d(TAG, String.format("name=%s",cityParser.getName()));
+            Log.d(TAG, String.format("lat=%f", lat));
+            Log.d(TAG, String.format("lon=%f", lon));
+        }
+
+        // Город найден, поэтому можно сохранить
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(PrefKeys.LAST_CITY_NAME, cityParser.getName());
+        editor.putFloat(PrefKeys.LAST_LAT, lat);
+        editor.putFloat(PrefKeys.LAST_LON, lon);
+        editor.apply();
+
+        WeatherApp.getWeatherParser().setCity(cityParser.getName(), lat, lon);
     }
 
     /**
@@ -199,7 +262,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private final OnDialogListener dialogCitySelectListener = new OnDialogListener() {
         @Override
         public void onDialogApply() {
-            WeatherApp.getWeatherParser().setCity(citySelectDialogFragment.getCityName());
+            WeatherApp.getWeatherParser().setCity(citySelectDialogFragment.getCityName(), -1, -1);
             updateWeather();
         }
     };
@@ -214,6 +277,29 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public OnFragmentErrorListener getErrorListener() {
         return errorListener;
     }
+
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            float lat = (float) location.getLatitude();// Широта
+            float lon = (float)location.getLongitude();// Долгота
+
+            WeatherApp.getWeatherParser().setCity(getString(R.string.location_unknown), lat, lon);
+            updateWeather();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+    };
 
     /**
      * Переход на выбор города, по клику на наименовании текущего города
@@ -246,11 +332,20 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Вернулись из настроек, обновим тему
-        if (requestCode == SETTING_CODE) {
-            if (data != null && data.getBooleanExtra(BundleKeys.THEME_CHANGED, false)) {
-                recreate();
-            }
+        switch (requestCode) {
+            case MAPS_CODE:
+                // На карте выбрали новый город
+                if (resultCode == RESULT_OK) {
+                    updateWeather();
+                }
+                break;
+
+            case SETTING_CODE:
+                // Вернулись из настроек, обновим тему
+                if (data != null && data.getBooleanExtra(BundleKeys.THEME_CHANGED, false)) {
+                    recreate();
+                }
+                break;
         }
     }
 
@@ -273,8 +368,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 updateWeather();
                 return true;
 
-            case R.id.action_change_city:
-                startActivity(new Intent(this, CitiesActivity.class));
+            case R.id.action_current_location:
+                requestLocation();
+                return true;
+
+            case R.id.action_select_on_map:
+                float lat = WeatherApp.getWeatherParser().getLat();
+                float lon  = WeatherApp.getWeatherParser().getLon();
+
+                Intent intentMaps = new Intent(MainActivity.this, MapsActivity.class);
+                intentMaps.putExtra(BundleKeys.LATITUDE, lat);
+                intentMaps.putExtra(BundleKeys.LONGITUDE, lon);
+                startActivityForResult(intentMaps, MAPS_CODE);
                 return true;
 
             case R.id.action_history:
@@ -349,4 +454,68 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         unregisterReceiver(connectivityReceiver);
         unregisterReceiver(batteryReceiver);
     }
+
+    /**
+     * Проверить разрешение на получение координат, если их нет - запросить.
+     * Будем проверять при каждом запросе координат пользователем.
+     */
+    private void requestPermissions() {
+        // Проверим на пермиссии, и если их нет, запросим у пользователя
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestLocationPermissions();
+        }
+    }
+
+    /**
+     * Запросить разрешение пользователя для определени положения устройства
+     */
+    private void requestLocationPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                    },
+                    MapDefaults.PERMISSION_REQUEST_CODE);
+        }
+    }
+
+
+    /**
+     * Запросить текущее положение или получить последнее известное
+     */
+    private void requestLocation() {
+        requestPermissions();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Logger.DEBUG) {
+                Log.d(TAG, "No permissions");
+            }
+            return;
+        }
+
+        LocationManager locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+
+        String provider = locationManager.getBestProvider(criteria, true);
+        if (provider != null) {
+            final Looper locationLooper = Looper.myLooper();
+            locationManager.requestSingleUpdate(provider, locationListener, locationLooper);
+        } else {
+            // Получим последнее известное положение, если какие то проблемы с определением
+            // текущего положения
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (location != null) {
+                locationListener.onLocationChanged(location);
+                return;
+            }
+        }
+    }
+
 }

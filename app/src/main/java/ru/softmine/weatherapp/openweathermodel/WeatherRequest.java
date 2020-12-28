@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.net.ssl.HttpsURLConnection;
 
 import ru.softmine.weatherapp.BuildConfig;
+import ru.softmine.weatherapp.WeatherApp;
 import ru.softmine.weatherapp.constants.BaseUrl;
 import ru.softmine.weatherapp.constants.Logger;
 
@@ -21,8 +22,8 @@ public class WeatherRequest {
 
     private static final String WEATHER_API_KEY = BuildConfig.WEATHER_API_KEY;
 
-    private static final String CITY_URL = "%s/weather?q=%s&appid=%s";
-    private static final String CURRENT_URL = "%s/onecall?lat=%f&lon=%f&exclude=minutely,hourly,alerts&appid=%s";
+    private static final String CITY_URL = "%s/weather?q=%s&appid=%s&lang=%s";
+    private static final String CURRENT_URL = "%s/onecall?lat=%f&lon=%f&exclude=minutely,hourly,alerts&appid=%s&lang=%s";
 
     private static String getResultForUri(URL uri) throws WeatherRequestException {
         String result = "";
@@ -56,8 +57,8 @@ public class WeatherRequest {
      * @return Истина, если обновление полностью успешно
      */
     public static WeatherParser getWeatherParser(String cityName) {
-        String urlString = String.format(CITY_URL, BaseUrl.WEB_API_URL, cityName, WEATHER_API_KEY);
-        boolean success = false;
+        String urlString = String.format(CITY_URL, BaseUrl.WEB_API_URL, cityName, WEATHER_API_KEY,
+                WeatherApp.getLang());
 
         CityParser city;
         try {
@@ -79,8 +80,14 @@ public class WeatherRequest {
             return null;
         }
 
-        urlString = String.format(Locale.getDefault(), CURRENT_URL,
-                BaseUrl.WEB_API_URL, city.getLat(), city.getLon(), WEATHER_API_KEY);
+        return getWeatherParser(city.getLat(), city.getLon());
+    }
+
+    public static WeatherParser getWeatherParser(float lat, float lon) {
+        String urlString = String.format(Locale.getDefault(), CURRENT_URL,
+                BaseUrl.WEB_API_URL, lat, lon, WEATHER_API_KEY,
+                WeatherApp.getLang());
+
         WeatherParser parser;
         try {
             parser = WeatherParser.parseWeather(getResultForUri(new URL(urlString)));
