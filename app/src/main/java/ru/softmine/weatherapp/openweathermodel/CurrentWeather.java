@@ -29,11 +29,11 @@ public class CurrentWeather {
 
     @SerializedName("wind_speed")
     @Expose
-    private float  wind_speed;
+    private float wind_speed;
 
     @SerializedName("wind_deg")
     @Expose
-    private int  wind_deg;
+    private int wind_deg;
 
     @SerializedName("weather")
     @Expose
@@ -57,6 +57,7 @@ public class CurrentWeather {
 
     /**
      * Получить скорость ветра в единицах измерения
+     *
      * @return Скорость
      */
     public float getWindSpeedUnits() {

@@ -15,6 +15,14 @@ public class Coord {
     @Expose
     private float lat;
 
+    public Coord() {
+    }
+
+    public Coord(float lon, float lat) {
+        this.lon = lon;
+        this.lat = lat;
+    }
+
     public float getLat() {
         return lat;
     }

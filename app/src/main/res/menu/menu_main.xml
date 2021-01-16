@@ -9,15 +9,20 @@
         android:title="@string/refresh"
         app:showAsAction="always" />
     <item
+        android:id="@+id/action_current_location"
+        android:icon="@android:drawable/ic_menu_mylocation"
+        android:title="@string/menu_my_location"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_history"
         android:icon="@android:drawable/ic_menu_month"
         android:title="@string/history"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_change_city"
-        android:icon="@android:drawable/ic_menu_mylocation"
-        android:title="@string/menu_cities"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/action_select_on_map"
+        android:icon="@android:drawable/ic_menu_mapmode"
+        android:title="@string/menu_select_on_map"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_settings"
         android:icon="@android:drawable/ic_menu_preferences"

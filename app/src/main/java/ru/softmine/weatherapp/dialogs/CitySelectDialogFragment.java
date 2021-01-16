@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import ru.softmine.weatherapp.R;
+import ru.softmine.weatherapp.WeatherApp;
 import ru.softmine.weatherapp.cities.CityAdapter;
 import ru.softmine.weatherapp.constants.Logger;
 import ru.softmine.weatherapp.interfaces.OnDialogListener;
@@ -29,7 +30,7 @@ public class CitySelectDialogFragment extends BottomSheetDialogFragment {
 
     private static final String TAG = CitySelectDialogFragment.class.getName();
 
-    private final String cityNameRegex = getResources().getString(R.string.cityNameRegEx);
+    private final String cityNameRegex = WeatherApp.getAppContext().getResources().getString(R.string.cityNameRegEx);
 
     /* Список известных городов */
     ArrayList<String> citiesNames;

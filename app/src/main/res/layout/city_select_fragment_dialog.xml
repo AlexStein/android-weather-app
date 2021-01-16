@@ -41,7 +41,6 @@
         android:layout_marginStart="@dimen/text_view_padding"
         android:layout_marginTop="@dimen/fab_margin"
         android:layout_marginEnd="@dimen/text_view_padding"
-        android:onClick="onButtonApplyClick"
         android:text="@string/apply"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

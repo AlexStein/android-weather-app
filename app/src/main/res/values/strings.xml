@@ -14,7 +14,6 @@
     <string name="detroit_city">Detroit</string>
 
     <string name="title_activity_settings">Settings</string>
-    <string name="title_activity_select_city_activity">Select City</string>
     <string name="enter_your_city">Enter your city</string>
     <string name="forecastSunny">Sunny</string>
     <string name="forecast_icon_description">Forecast icon</string>
@@ -29,13 +28,12 @@
     <string name="mph">mph</string>
     <string name="kph">kph</string>
     <string name="m_s">m/s</string>
-    <string name="wind_example">...</string>
+    <string name="wind_example" translatable="false">...</string>
 
     <string name="day_fmt" translatable="false">EEE dd.MM</string>
     <string name="weather_icon">Weather icon</string>
     <string name="city_validation_error">City name is incorrect</string>
     <string name="city_name_not_supported">We cannot show the forecast for this city</string>
-    <string name="city_activity_wrong_input">Input data has incorrect values</string>
     <string name="settings">Settings</string>
     <string name="app_theme_apply_message">Applying theme</string>
 
@@ -54,7 +52,6 @@
     <string name="current_wind_format" translatable="false">%.1f %s (%s)</string>
 
     <string name="ok">OK</string>
-    <string name="change_city">Change City</string>
     <string name="refresh">Refresh</string>
     <string name="history">History</string>
     <string name="menu_home">Home</string>
@@ -77,6 +74,23 @@
     <string name="contact_author_by_email">Contact author by email</string>
     <string name="default_subject">Hello</string>
     <string name="title_dialog_error">Error</string>
-    <string name="about_city">About city</string>
     <string name="cityNameRegEx" translatable="false">^([a-zA-Z\\\\u0080-\\\\u024F]+(?:. |-| |\\\'))*[a-zA-Z\\\\u0080-\\\\u024F]*$</string>
+    <string name="authorities" translatable="false">ru.softmine.weatehrapp.history</string>
+    <string name="airplane_mode_message">Airplane mode on</string>
+    <string name="no_wifi_message">WiFi is not connected</string>
+    <string name="no_connection_title">No connection</string>
+    <string name="no_internet_connection">No Internet connection</string>
+    <string name="no_low_message">Battery charge is low</string>
+    <string name="battery_low">Low battery</string>
+    <string name="push_notification">PUSH notification</string>
+    <string name="empty_push_body">Push body is empty</string>
+    <string name="menu_select_on_map">Select on map</string>
+    <string name="menu_my_location">My location</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_cities">Cities</string>
+    <string name="title_activity_history">Weather history</string>
+    <string name="action_ok">OK</string>
+    <string name="im_here">I\'m here</string>
+    <string name="location_unknown">Unknown</string>
+    <string name="locale">en</string>
 </resources>

@@ -86,15 +86,13 @@
         android:id="@+id/buttonInfo"
         android:layout_width="@dimen/info_icon_size"
         android:layout_height="@dimen/info_icon_size"
-        android:layout_marginEnd="5dp"
+        android:layout_marginStart="@dimen/fab_margin"
         android:background="@android:drawable/ic_dialog_info"
         android:backgroundTint="?attr/colorDecorator"
         android:fontFamily="casual"
         android:onClick="onButtonInfoClick"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/cityNameTextView"
-        app:layout_constraintEnd_toEndOf="@+id/thermometerView"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/cityNameTextView"
         app:layout_constraintTop_toTopOf="@+id/cityNameTextView" />
 

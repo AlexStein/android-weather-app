@@ -7,32 +7,21 @@ import java.util.List;
  * Хранилице истории погоды
  */
 public class HistoryDataSource {
-    private static final String TAG = HistoryDataSource.class.getName();
+    public List<HistoryItem> historyItems;
 
-    public static List<HistoryItem> historySource = new ArrayList<>();
-
-    private static String getLastCityName() {
-        int listLen = historySource.size();
-
-        if (listLen == 0) {
-            return "";
-        }
-
-        return historySource.get(listLen - 1).getCityName();
+    public HistoryDataSource() {
+        historyItems = new ArrayList<>();
     }
 
-    public static void updateHistoryItem(String cityName, String temp, String condition, String wind) {
-        int listLen = historySource.size();
+    public List<HistoryItem> getHistoryItems(){
+        return historyItems;
+    }
 
-        HistoryItem item;
-        if (getLastCityName().equals(cityName)) {
-            item = historySource.get(listLen - 1);
-            item.updateHistoryItem(temp, condition, wind);
-            historySource.set(listLen - 1, item);
+    public void setHistoryItems(List<HistoryItem> historyItems) {
+        this.historyItems = historyItems;
+    }
 
-        } else {
-            item = new HistoryItem(cityName, temp, condition, wind);
-            historySource.add(item);
-        }
+    public int getHistoryItemsCount(){
+        return historyItems.size();
     }
 }

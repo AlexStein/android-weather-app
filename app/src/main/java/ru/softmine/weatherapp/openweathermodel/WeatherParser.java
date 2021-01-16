@@ -20,6 +20,10 @@ public class WeatherParser {
 
     private String cityName;
 
+    @SerializedName("coord")
+    @Expose
+    private Coord coord;
+
     @SerializedName("current")
     @Expose
     private CurrentWeather current;
@@ -33,11 +37,11 @@ public class WeatherParser {
      */
     public WeatherParser() {
         observers = new ArrayList<WeatherObserver>() {};
-        setCity("");
     }
 
-    public void setCity(String cityName) {
+    public void setCity(String cityName, float lat, float lon) {
         this.cityName = cityName;
+        this.coord = new Coord(lon, lat);
         this.current = new CurrentWeather();
         this.daily = new Daily[]{};
     }
@@ -85,7 +89,7 @@ public class WeatherParser {
     }
 
     public String getWeatherString() {
-        return current.getWeather().getMain();
+        return current.getWeather().getDescription();
     }
 
     public static String getWeatherIconUri(String iconName) {
@@ -114,5 +118,13 @@ public class WeatherParser {
 
     public Daily[] getDaily() {
         return daily;
+    }
+
+    public float getLat() {
+        return coord.getLat();
+    }
+
+    public float getLon() {
+        return coord.getLon();
     }
 }
