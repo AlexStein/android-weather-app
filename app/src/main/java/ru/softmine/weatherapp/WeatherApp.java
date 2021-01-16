@@ -19,6 +19,7 @@ public class WeatherApp extends Application {
     private static WeatherApiHolder weatherApiHolder;
     private static WeatherDatabase db;
     private static DatabaseHandler databaseHandler;
+    private static String lang;
 
     @Override
     public void onCreate() {
@@ -30,6 +31,7 @@ public class WeatherApp extends Application {
         weatherParser = new WeatherParser();
         weatherApiHolder = new WeatherApiHolder();
         databaseHandler = new DatabaseHandler();
+        lang = getResources().getString(R.string.locale);
     }
 
     public static WeatherDao getWeatherDao() {
@@ -50,5 +52,9 @@ public class WeatherApp extends Application {
 
     public static WeatherApiHolder getWeatherApiHolder() {
         return weatherApiHolder;
+    }
+
+    public static String getLang() {
+        return lang;
     }
 }

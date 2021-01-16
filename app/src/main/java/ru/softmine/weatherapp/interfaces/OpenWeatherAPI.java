@@ -8,11 +8,20 @@ import ru.softmine.weatherapp.openweathermodel.WeatherParser;
 
 public interface OpenWeatherAPI {
     @GET("weather")
-    Call<CityParser> loadCity(@Query("q") String city, @Query("appid") String keyApi);
+    Call<CityParser> loadCity(@Query("q") String city,
+                              @Query("appid") String keyApi,
+                              @Query("lang") String lang);
+
+    @GET("weather")
+    Call<CityParser> loadCity(@Query("lat") float lat,
+                              @Query("lon") float lon,
+                              @Query("appid") String keyApi,
+                              @Query("lang") String lang);
 
     @GET("onecall")
     Call<WeatherParser> loadWeather(@Query("lat") float lat,
                                     @Query("lon") float lon,
                                     @Query("exclude") String exclude,
-                                    @Query("appid") String keyApi);
+                                    @Query("appid") String keyApi,
+                                    @Query("lang") String lang);
 }

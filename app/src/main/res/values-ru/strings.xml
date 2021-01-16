@@ -17,7 +17,6 @@
     <string name="detroit_city">Детройт</string>
 
     <string name="title_activity_settings">Настройки</string>
-    <string name="title_activity_select_city_activity">Выберите город</string>
     <string name="enter_your_city">Введите свой город</string>
     <string name="forecastSunny">Солнечно</string>
     <string name="temp_units">Единицы темпертуры</string>
@@ -27,11 +26,9 @@
     <string name="kph">км/ч</string>
     <string name="m_s">м/с</string>
 
-    <string name="wind_example">5 – 10 м/с</string>
     <string name="weather_icon">Иконка погоды</string>
     <string name="city_validation_error">Некорректное наименование города</string>
     <string name="city_name_not_supported">Невозможно отобразить прогноз для указанного города</string>
-    <string name="city_activity_wrong_input">Выбраны неверные данные</string>
     <string name="settings">Settings</string>
     <string name="app_theme_apply_message">Применяем тему</string>
 
@@ -44,7 +41,7 @@
     <string name="direction_s">Ю</string>
     <string name="direction_se">ЮВ</string>
 
-    <string name="current_temp_format">\"%d (Ощущается  %d) %s\"</string>
+    <string name="current_temp_format">%d (Ощущается  %d) %s</string>
     <string name="ok">Хорошо</string>
     <string name="wiki_url_format">https://ru.wikipedia.org/wiki/%s</string>
     <string name="author_photo">Фото автора</string>
@@ -56,7 +53,6 @@
     <string name="more">Еще</string>
     <string name="contact_author_by_email">Написать автору</string>
     <string name="default_subject">Привет</string>
-    <string name="change_city">Выбрать город</string>
     <string name="refresh">Обновить</string>
     <string name="history">История запросов</string>
     <string name="menu_home">Главная</string>
@@ -67,5 +63,21 @@
     <string name="nav_header_subtitle">Лучшее приложение</string>
     <string name="nav_header_desc">Аватарка</string>
     <string name="title_dialog_error">Ошибка</string>
-    <string name="about_city">О городе</string>
+    <string name="airplane_mode_message">Режим самолета включен</string>
+    <string name="no_wifi_message">WifI не подключен</string>
+    <string name="no_connection_title">Нет соединения</string>
+    <string name="battery_low">Низкий заряд батареи</string>
+    <string name="location_unknown">Неизвестно</string>
+    <string name="im_here">Я тут</string>
+    <string name="action_ok">Применить</string>
+    <string name="title_activity_cities">Города</string>
+    <string name="title_activity_history">История запросов</string>
+    <string name="title_activity_maps">Карта</string>
+    <string name="menu_my_location">Мое расположение</string>
+    <string name="menu_select_on_map">Выбрать на карте</string>
+    <string name="empty_push_body">Пусто</string>
+    <string name="push_notification">Push-оповещение</string>
+    <string name="no_low_message">Низкий заряд батареи</string>
+    <string name="no_internet_connection">Нет соединения с Интернетом</string>
+    <string name="locale">ru</string>
 </resources>

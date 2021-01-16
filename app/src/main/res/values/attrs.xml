@@ -11,4 +11,5 @@
         <attr name="endColor" format="color" />
         <attr name="startColor" format="color" />
     </declare-styleable>
+    <attr name="textColor" format="color" />
 </resources>

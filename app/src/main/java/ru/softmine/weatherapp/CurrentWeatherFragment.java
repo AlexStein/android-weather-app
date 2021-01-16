@@ -63,7 +63,9 @@ public class CurrentWeatherFragment extends Fragment implements WeatherObserver 
         if (Logger.DEBUG) {
             Log.d(TAG, "updateWeatherOnDisplay()");
         }
-        cityNameTextView.setText(weatherParser.getCityName());
+
+        String cityName = weatherParser.getCityName();
+        cityNameTextView.setText(cityName.isEmpty() ? getString(R.string.location_unknown): cityName);
 
         // Проверим, а была ли получена погода
         if (weatherParser.getCurrent().getWeather() == null) {

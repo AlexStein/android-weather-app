@@ -25,7 +25,7 @@ public class ForecastSource implements WeatherDataSource {
         for (Daily d : daily) {
             dataSource.add(new ForecastItem(d.getDate(),
                     Math.round(d.getTempMin()), Math.round(d.getTempMax()),
-                    d.getWeather().getMain(),
+                    d.getWeather().getDescription(),
                     d.getIcon()));
         }
     }

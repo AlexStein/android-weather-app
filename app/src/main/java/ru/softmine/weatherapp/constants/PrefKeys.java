@@ -18,4 +18,10 @@ public class PrefKeys {
 
     // Последний город
     public static final String LAST_CITY_NAME = "LAST_CITY_NAME";
+
+    // Последний широта
+    public static final String LAST_LAT = "LAST_LAT"
+;
+    // Последний долгота
+    public static final String LAST_LON = "LAST_LON";
 }
