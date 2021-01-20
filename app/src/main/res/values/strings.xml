@@ -93,4 +93,7 @@
     <string name="im_here">I\'m here</string>
     <string name="location_unknown">Unknown</string>
     <string name="locale">en</string>
+    <string name="sign_in_failed">Sign in failed: </string>
+    <string name="title_dialog_sign_out">Sign out</string>
+    <string name="sign_out_message">Signing in was cancelled due error or user action.\nApplication will be closed.</string>>
 </resources>

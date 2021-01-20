@@ -3,6 +3,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        'pro-release' {
+            storeFile file('C:\\Users\\AlexS\\.android\\debug.keystore')
+            keyAlias 'androiddebugkey'
+            storePassword 'android'
+            keyPassword 'android'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "30.0.2"
 
@@ -29,11 +37,28 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            applicationIdSuffix '.debug'
+        }
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    flavorDimensions 'version'
+    productFlavors {
+        free {
+            dimension 'version'
+        }
+        pro {
+            dimension 'version'
+            versionNameSuffix '-pro'
+        }
+        demo {
+            dimension 'version'
+            versionNameSuffix '-demo'
+        }
     }
 }
 
@@ -41,6 +66,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-auth:19.0.0'
 
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:26.2.0')
